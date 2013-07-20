@@ -1,0 +1,6 @@
+<beans>
+  
+  <bean id="..." class="...">
+    ...
+  </bean>
+</beans>
