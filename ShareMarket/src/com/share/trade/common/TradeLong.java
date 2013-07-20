@@ -199,7 +199,7 @@ public class TradeLong {
 			}
 			System.out.println("isByable " + isByable + " isTime4Position "
 					+ isTime4Position);
-			if (isByable && isTime4Position) {
+			if (isByable && isTime4Position && !isSellAlerted) {
 				// if(true){
 				// CHECK ACOUNT BALANCE
 

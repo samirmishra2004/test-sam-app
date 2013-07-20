@@ -56,6 +56,10 @@ public class CronAction{
 		if(HOUR == 9 && MINUT <=19){
 		System.out.println("Clear the log");
 		MethodUtil.clearLog("");
+		//reset static values
+		ShareUtil.PRICE_CHANGE_DEC_MAP.clear();
+		ShareUtil.PRICE_CHANGE_INC_MAP.clear();
+		ShareUtil.hookPrice.clear();
 		}
 		
 		if(strategy!=null&&strategy.getTradeOnOff()!=null&&ShareUtil.TRADE_ON.equals(strategy.getTradeOnOff())){

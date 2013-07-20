@@ -38,7 +38,7 @@ public class TradeSort {
 	Calendar time = Calendar.getInstance();
 	int HOUR = 0;
 	int MINUT = 0;
-	int SECOND = 0;
+	int SECOND = 0; 
 
 	boolean forceSquareOff = false;
 	int positonOpenB4Hour = 14;
@@ -191,7 +191,7 @@ public class TradeSort {
 				isSellable = false;
 			}
 
-			if (isSellable && isTime4Position) {
+			if (isSellable && isTime4Position && !isBuyAlerted) {
 			//if (true) {
 				// CHECK ACOUNT BALANCE
 
