@@ -3,7 +3,9 @@ package com.share.trade.dao;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
@@ -32,6 +34,10 @@ public class TradeSummaryDAO {
 				if(tradeDay.get(Calendar.YEAR)==today.get(Calendar.YEAR)
 						&&tradeDay.get(Calendar.MONTH)==today.get(Calendar.MONTH)
 						&&tradeDay.get(Calendar.DATE)==today.get(Calendar.DATE)){
+					tsToupdate=t;
+				}else if(tradeDay.get(Calendar.YEAR)==today.get(Calendar.YEAR)
+						&&tradeDay.get(Calendar.MONTH)==today.get(Calendar.MONTH)
+						&&(t.getBuyPrice()==0||t.getSellPrice()==0)){
 					tsToupdate=t;
 				}
 			}
@@ -67,13 +73,13 @@ public class TradeSummaryDAO {
 		   return true;
 	}
 	
-	public List<TradeSummary> getTradeSummary(){
+	public LinkedList<TradeSummary> getTradeSummary(){
 		PersistenceManager pm = PMF.getInstance().getPersistenceManager();
 		List<TradeSummary> ts=new ArrayList<TradeSummary>();
 		try{
 		
 		Query q=pm.newQuery(TradeSummary.class);		
-		
+		q.setOrdering("tradeDate desc");
 		Object result=q.execute();
 		if(result!=null)
 		ts=(List<TradeSummary>)result;
@@ -85,7 +91,7 @@ public class TradeSummaryDAO {
 		}
 		
 		if(ts!=null&&ts.size()>0)
-		return ts;
+		return new LinkedList(ts);
 		else
 			return null;
 	}

@@ -21,6 +21,7 @@ public class TradeSummaryController {
 	@RequestMapping("/viewtradesumary")
 	public ModelAndView viewTradeSummary(){
 		ModelAndView mvc=new ModelAndView("monthlysummary");
+		
 		List<TradeSummary> tsl=tradeSummaryBD.getTradeMonthlySummary();
 		List<TradeSummary> tslf=new ArrayList<TradeSummary>();
 		TradeSummaryVo tsv=null;

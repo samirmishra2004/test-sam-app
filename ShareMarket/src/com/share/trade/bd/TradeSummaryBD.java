@@ -3,6 +3,7 @@ package com.share.trade.bd;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -29,9 +30,9 @@ public class TradeSummaryBD {
 		   return true;
 	}
 	
-	public List<TradeSummary> getTradeMonthlySummary(){
-		List<TradeSummary> tsl=new ArrayList<TradeSummary>();
-		List<TradeSummary> tsml=new ArrayList<TradeSummary>();
+	public LinkedList<TradeSummary> getTradeMonthlySummary(){
+		LinkedList<TradeSummary> tsl=new LinkedList<TradeSummary>();
+		LinkedList<TradeSummary> tsml=new LinkedList<TradeSummary>();
 		Calendar trdCal=Calendar.getInstance();
 		Calendar todayCal=Calendar.getInstance();
 		todayCal.setTime(new Date());
