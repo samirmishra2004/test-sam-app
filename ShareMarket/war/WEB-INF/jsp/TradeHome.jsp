@@ -252,7 +252,9 @@ alert("Message: "+obj);
 	<tr>
 		<td><a href="#" onclick="loadScriptMapper();">Script Mapper</a></td>
 	</tr>
-
+	<tr>
+		<td><a href='<c:url  value="viewFnOGapStrategy.do"/>'>Future Gap Strategy </a></td>
+	</tr>
 	<tr>
 		<td><a href='<c:url  value="viewBrokerDetail.do"/>'>Broker </a></td>
 	</tr>

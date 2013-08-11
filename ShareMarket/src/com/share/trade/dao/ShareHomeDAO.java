@@ -22,12 +22,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.mortbay.log.Log;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Text;
 import com.share.trade.common.PMF;
 import com.share.trade.common.ShareUtil;
+import com.share.trade.vo.FutureScriptQuote;
 import com.share.trade.vo.ShareBean;
 import com.share.trade.vo.StaticHtmlStore;
 
@@ -251,5 +253,120 @@ public class ShareHomeDAO {
     	}
     	return stockInfo;
     }
-    
+    public FutureScriptQuote getRealTimeFutureQuote(String  scUrl){
+		
+		String url=ShareUtil.MONEY_CONTROL_FNO_URL+scUrl;
+		
+		
+		FutureScriptQuote quote=new FutureScriptQuote();
+		Document doc;
+    	try {
+    		doc = Jsoup.connect(url).get();
+    		
+    		Elements futureCurPriceElements= doc.select("p[class^=gr_28 FL]");
+    		System.out.println("Current Price : "+futureCurPriceElements.get(0).text());
+    		//set quote
+    		quote.setCurrentPrice(futureCurPriceElements.get(0).text());
+    		
+    		Elements futureQuoteHtmlElements1= doc.select("div[class^=FL PA10 brdr]");
+    		
+    		Elements futureQuoteHtmlElements2= doc.select("div[class^=FR PA10]");
+
+        	if(futureQuoteHtmlElements1!=null){
+        		//Iterator<Element> iterator=futureQuoteHtmlElements1.listIterator();
+        		//System.out.println(futureQuoteHtmlElements1.get(0).text());
+        		Elements otherParameter=futureQuoteHtmlElements1.get(0).getElementsByTag("tbody").get(0).getElementsByTag("tr");
+        		
+        		
+        		Iterator<Element> ohereElementIterator=otherParameter.listIterator();
+        		if(ohereElementIterator.hasNext()){
+        			Element element=ohereElementIterator.next();
+        			
+        			System.out.println("Oherer Param: "+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+        			//set quote
+        			quote.setOpenPrice(element.getElementsByTag("td").text());
+        			
+        			if(ohereElementIterator.hasNext()){
+        		    element=ohereElementIterator.next();
+        		    logger.info("day high :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+        		    quote.setDayHigh(element.getElementsByTag("td").text());
+        			}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();
+            		    logger.info("day low :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+            		    quote.setDayLow(element.getElementsByTag("td").text());
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();
+            		    logger.info("previous close :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+            		    quote.setPreviousClose(element.getElementsByTag("td").text());
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();     //escAPE       		    
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();         //escAPE        		    
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();        //escAPE         		    
+            		}
+        			
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();
+            		    logger.info("bid price :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+            		    quote.setBidPrice(element.getElementsByTag("td").text());
+            		}
+        			//System.out.println("Oherer Param: "+element.html());
+
+        		}
+        		
+        	}
+        	if(futureQuoteHtmlElements2!=null){
+        		//Iterator<Element> iterator=futureQuoteHtmlElements2.listIterator();
+        		Elements otherParameter=futureQuoteHtmlElements2.get(0).getElementsByTag("tbody").get(0).getElementsByTag("tr");
+        		Iterator<Element> ohereElementIterator=otherParameter.listIterator();
+        		if(ohereElementIterator.hasNext()){
+        			Element element=ohereElementIterator.next();
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();        //escAPE         		    
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();        //escAPE         		    
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();
+            		    logger.info("lot size :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+            		    quote.setLotSize(element.getElementsByTag("td").text());
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();        //escAPE         		    
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();        //escAPE         		    
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();        //escAPE         		    
+            		}
+        			if(ohereElementIterator.hasNext()){
+            		    element=ohereElementIterator.next();   
+            		    logger.info("Offer Price :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+            		    quote.setOffferPrice(element.getElementsByTag("td").text());
+            		}
+        			//System.out.println("Oherer Param1: "+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
+        			//Elements elementsNseContent= element.select("span[id^=gr_28 FL]");
+        		}
+        	}
+    		//System.out.println("previousClose: "+previousClose.get(1).text());
+    	}
+    	catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return quote;
+		
+	}
+    public static void main(String[] args) {
+	//	ShareHomeDAO homeDAO=new ShareHomeDAO();
+	//	homeDAO.getRealTimeFutureQuote("sail/SAI/2013-08-29");
+	}
 }

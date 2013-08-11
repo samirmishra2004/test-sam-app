@@ -23,6 +23,8 @@ public class Strategy {
 	@Persistent
 	private String tradeOnOff;
 	@Persistent
+	private boolean futGapTrd;
+	@Persistent
 	private String globalSentiment;
 	@Persistent
 	private String tradeSegment;
@@ -125,7 +127,13 @@ public class Strategy {
 	public void setAutoTrade(boolean autoTrade) {
 		this.autoTrade = autoTrade;
 	}
-	
+	public boolean isFutGapTrd() {
+		return futGapTrd;
+	}
+	public void setFutGapTrd(boolean futGapTrd) {
+		this.futGapTrd = futGapTrd;
+	}
+		
 	
 	
 	

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.share.trade.bd.FutureGapTradeBD;
 import com.share.trade.bd.ScriptMapperBD;
 import com.share.trade.bd.ShareHomeBD;
 import com.share.trade.bd.StrategyBD;
@@ -17,6 +18,7 @@ import com.share.trade.common.MethodUtil;
 import com.share.trade.common.ShareUtil;
 import com.share.trade.common.TradeLong;
 import com.share.trade.common.TradeSort;
+import com.share.trade.database.FutureGapScript;
 import com.share.trade.database.ScriptMapper;
 import com.share.trade.database.Strategy;
 import com.share.trade.vo.ShareBean;
@@ -43,6 +45,7 @@ public class CronAction{
 	private ShareHomeBD homeBD=new ShareHomeBD();
 	private StrategyBD  strategyBD=new StrategyBD();
 	private ScriptMapperBD mapperBD=new ScriptMapperBD();
+	private FutureGapTradeBD futureGapTradeBD=new FutureGapTradeBD();
 	@RequestMapping("/cronAction")
 	public ModelAndView execute() throws Exception{
 		time.setTimeZone(TimeZone.getTimeZone("IST"));
@@ -69,6 +72,15 @@ public class CronAction{
 			ShareUtil.WATCHER_LOG.remove(index);
 			}
 		}
+		
+		if(strategy.isFutGapTrd()){
+			System.out.println("=========Gap update Start with"+ShareUtil.WATCHER_FNO_SCRIPT_SET.size()+" script =======");
+			for(FutureGapScript gs:ShareUtil.WATCHER_FNO_SCRIPT_SET){
+				
+				futureGapTradeBD.updateCalculatedGap(gs);
+			}
+			System.out.println("=========Gap update End =======");
+		}else
 		
 		if(ShareUtil.WATCHER_SCRIPT_SET.size()>0){
 			

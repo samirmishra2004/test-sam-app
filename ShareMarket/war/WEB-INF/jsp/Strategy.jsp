@@ -64,6 +64,16 @@ function save(){
 	</tr>
 	<tr height="80%">
 		<td>
+		Future Gap Trade 
+		</td>
+		<td>
+		ON:<input type=radio name=futGapTrd value="true" <c:if test="${strategy.futGapTrd}">checked</c:if>/>
+		&nbsp;&nbsp;&nbsp;
+		OFF:<input type=radio name=futGapTrd value="false" <c:if test="${!strategy.futGapTrd}">checked</c:if>/>
+		</td>
+	</tr>
+	<tr height="80%">
+		<td>
 		Global Sentiment 
 		</td>
 		<td>

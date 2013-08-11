@@ -46,6 +46,7 @@ public class StrategyController{
 		String openPositionMinut=req.getParameter("openPositionMinut");
 		String closePositionHour=req.getParameter("closePositionHour");
 		String closePositionMinut=req.getParameter("closePositionMinut");
+		String futGapTrd=req.getParameter("futGapTrd");
 		log.info("buyFactor "+buyFactor);
 		log.info("sellFactor "+sellFactor);
 		log.info("tradeOnOff "+tradeOnOff);
@@ -58,6 +59,7 @@ public class StrategyController{
 		log.info("closePositionHour "+closePositionHour);
 		log.info("closePositionMinut "+closePositionMinut);
 		log.info("tradeValue "+tradeValue);
+		log.info("futGapTrd "+futGapTrd);
 		
 		Strategy stg=new Strategy();
 		stg.setBuyFactor(buyFactor);
@@ -73,7 +75,7 @@ public class StrategyController{
 		stg.setPositionOpenMinut(openPositionMinut);
 		stg.setPositionCloseHour(closePositionHour);
 		stg.setPositionCloseMinut(closePositionMinut);
-		
+		stg.setFutGapTrd(Boolean.parseBoolean(futGapTrd));
 		if(MethodUtil.isEmpty(buyFactor)&&
 				MethodUtil.isEmpty(globalSentiment)&&
 				MethodUtil.isEmpty(sellFactor)&&

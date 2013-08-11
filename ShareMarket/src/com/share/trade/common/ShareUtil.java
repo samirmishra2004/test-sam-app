@@ -5,9 +5,13 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import com.share.trade.database.FutureGapScript;
+
 public class ShareUtil {
 public static String MONEY_CONTROLL_URL="http://www.appuonline.com/n_most_active_securities.html";
+public static String MONEY_CONTROL_FNO_URL="http://www.moneycontrol.com/india/fnoquote/";
 public static Set<String> WATCHER_SCRIPT_SET=new HashSet<String>();
+public static Set<FutureGapScript> WATCHER_FNO_SCRIPT_SET=new HashSet<FutureGapScript>();
 public static LinkedList<String> WATCHER_LOG=new LinkedList<String>();
 public static HashMap<String, Double> PRICE_CHANGE_INC_MAP=new HashMap<String, Double>();
 public static HashMap<String, Double> PRICE_CHANGE_DEC_MAP=new HashMap<String, Double>();
@@ -16,6 +20,7 @@ public static HashMap<String, HashMap<String, Object>> stockWatcherData=new Hash
 public static HashMap<String, Double> hookPrice=new HashMap<String,Double>();
 
 public static String DEFAULTSTRATEGY="DEFAULTSTRATEGY";
+
 public static String TRADE_ON="1";
 public static String BUY_ALTERD="BUY_ALTERD";
 public static String SELL_ALTERD="SELL_ALTERD";

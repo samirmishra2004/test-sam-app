@@ -39,6 +39,7 @@ public class StrategyDAO {
 			stg.setPositionCloseMinut(strategy.getPositionCloseMinut());
 			stg.setPositionOpenHour(strategy.getPositionOpenHour());
 			stg.setPositionOpenMinut(strategy.getPositionOpenMinut());
+			stg.setFutGapTrd(strategy.isFutGapTrd());
 			}catch(Exception e){
 				e.printStackTrace();
 				return false;

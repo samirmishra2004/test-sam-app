@@ -1,0 +1,219 @@
+*:focus{outline:0}
+body{
+	background:#fff none repeat scroll 0 0;
+	
+	background-image:url('bg_general.jpg');
+	font-family:Arial,sans-serif;
+	font-size:12px;
+	margin:0;
+	overflow:auto;
+	padding:0;
+	text-align:center;
+	
+	}
+	table{
+	table-layout: fixed;
+	}
+	.body1{
+	background:#fff none repeat scroll 0 0;
+	font-family:Arial,sans-serif;
+	font-size:12px;
+	margin:0;
+	overflow:auto;
+	padding:0;
+	text-align:center;
+	width:auto
+	}
+	a{
+	color:#06f;
+	font-family:Arial,sans-serif;
+	font-size:14px;
+	text-decoration:none
+	}
+	a:hover{
+	color:#ce7901;text-decoration:none
+	}
+	h2{
+	font-size:14px;
+	font-weight:bold;margin:0
+	}
+	h3{
+	color:#95a2a5;
+	font-size:22px;
+	font-weight:normal;margin:0
+	}
+	h4{
+	color:#c90000;
+	font-size:14px;
+	margin:0 0 10px;padding:0
+	}
+	h5{
+	color:#95a2a5;
+	font-size:14px;
+	margin:0 0 10px
+	}
+	.clear{
+	clear:both
+	}
+	#wrapper{
+	margin:0;padding:0;width:100%
+	}
+	#header{
+	background:#fafbfd;width:100%;height:51px;
+	border-bottom:1px solid #c4d9ea
+	}
+	#header select{
+	display:block;float:right;line-height:30px;margin:10px 0 0 0;padding:0;font-size:1.0em}
+	#language_selection{display:block;float:right;height:30px;margin:7px 15px 0 0;text-align:right;width:300px}
+	#language_selection img{display:inline;float:right;margin:5px 8px 0 0}
+	#title,#content_area{width:930px;margin:0 auto}
+	#title{padding:34px 0}
+	#content_area1{width:930px;margin:0 inherit;}
+	#primary_content{float:left;text-align:left;margin:0 0 0 17px;padding:0 0 10px 0;background:#fafbfd;width:460px;border:1px solid #cdcdcd}
+	#primary_content1{
+	float:left;
+	text-align:left;
+	margin:0 0 0 1px;
+	padding:0 0 10px 0;
+	background:#fafbfd;
+	width:360px;
+	height:100%;
+	border:1px solid #cdcdcd
+	}
+
+.formContent {
+	font-family: verdana,arial,sans-serif;
+	font-size:15px;
+	color:#333333;
+	background:#fafbfd;
+	border-width: 0px;
+	border-color: #666666;
+	border-collapse: collapse;
+	float:left;
+	text-align:left;
+	margin:10 10 10 20px;
+	padding:0 0 10px 0;
+	width:660px;
+	height:250px;
+	border:0px solid #cdcdcd
+}
+.searchResult {
+	font-family: verdana,arial,sans-serif;
+	font-size:10px;
+	color:#333333;
+	background:#fafbfd;
+	border-width: 1px;
+	border-color: #666666;	
+	float:left;
+	text-align:center;
+	margin:0 0 0px 0px;
+	padding:0 0px 0;
+	width:1100px;	
+	border:0px solid #cdcdcd;
+	
+}
+
+.formContent.gridtable th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+}
+.formContenttable  td {
+	border-width: 1px;
+	padding: 20px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+}
+
+.midSizeCell{
+	
+text-align:center;
+	border-color: #666666;
+	background-color: #ffffff;
+	font-family:Arial,sans-serif;
+	font-size:10px;
+	width:60px;
+}
+
+.longSizeCell{
+	
+text-align:center;
+	border-color: #666666;
+	background-color: #ffffff;
+	font-family:Arial,sans-serif;
+	font-size:10px;
+	width:160px;
+}
+.headerCell{
+	
+	text-align:center;
+	border-color: #666666;
+	background-color: #ffffff;
+	font-family:Arial,sans-serif;
+	font-weight:bold;
+	font-size:10px;
+	width:100px;
+	
+}
+.headerCellLong{
+text-align:center;
+	border-color: #666666;
+	background-color: #ffffff;
+	font-family:Arial,sans-serif;	
+	font-size:10px;
+	width:160px;
+}
+	
+	#welcome{font:21px Arial,sans-serif;font-weight:bold;color:#2c5fac;text-align:left;width:400px;margin:40px 0 20px 44px}
+	#helpWelcome{font:18px Arial,sans-serif;font-weight:bold;color:#2c5fac;text-align:left;width:400px;margin:25px 0 15px 44px}
+	#contactUs{font:18px Arial,sans-serif;font-weight:bold;color:#2c5fac;text-align:left;width:400px;margin:20px 0 0 44px}
+	#welcomeLogOut{font:21px Arial,sans-serif;font-weight:bold;color:#2c5fac;text-align:left;width:400px;margin:40px 0 0 44px}
+	.entryLoginName{font:13px Arial,sans-serif;color:#676767;margin:0 0 1px 44px;width:400px;text-align:left}
+	.entryLoginInput{color:#676767;float:left;margin:5px 0 10px 44px;width:400px;padding:0;_margin:0;_padding:0 0 1px 44px}
+	.helpInput{color:#676767;float:left;margin:10px 0 10px 44px;width:350px;padding:0;line-height:120%}
+	.maintenance{font:bold 15px Arial,sans-serif;color:#676767;margin:0;padding:50px 5px 0 30px;width:400px;height:120px}
+	#usernameId{width:260px;margin-left:0}#passwordId{width:260px;margin-left:0}
+	.formLoginButton{min-width:115px;height:30px;float:left;font:13px Arial;overflow:visible;background-color:#f4bb51;border-radius:.3em;color:#000;border-top:1px solid #fcdb9f;border-bottom:1px solid #dd9104;border-right:1px solid #dd9104;border-left:1px solid #fcdb9f;padding:4px 17px 4px 17px;margin:5px 0 0 0;cursor:pointer}
+	.formLoginButton:hover{background-color:#f7c66c;border-color:#f3a005 #fcdb9f #fcdb9f #f3a005;border-style:solid;border-width:1px}
+	.actionButtonArea{margin:10px 30px 0 30px;padding:10px 0 0 0;border-top:1px solid #cdcdcd}
+	.actionButton{height:30px;float:none;font:13px Arial;overflow:visible;background-color:#f4bb51;border-radius:.3em;color:#000;border-top:1px solid #fcdb9f;border-bottom:1px solid #dd9104;border-right:1px solid #dd9104;border-left:1px solid #fcdb9f;padding:4px 17px 4px 17px;margin:0 20px 0 0;cursor:pointer}
+	.actionButton:hover{background-color:#f7c66c;border-color:#f3a005 #fcdb9f #fcdb9f #f3a005;border-style:solid;border-width:1px}
+	.actionCancelButton{height:30px;float:left;padding:0;margin:0 20px 10px 15px;font:14px Arial,sans-serif;overflow:visible;background-color:#fafbfd;border:1px solid #fafbfd;color:#06f;cursor:pointer;text-align:left;text-decoration:none}
+	.actionCancelButton:hover{background-color:#fafbfd;text-decoration:underline}
+	.loginReturnButton{height:30px;float:left;padding:0;margin:15px 20px 10px 0;font:14px Arial,sans-serif;overflow:visible;background-color:#fafbfd;border:1px solid #fafbfd;color:#06f;cursor:pointer;text-align:left;text-decoration:underline}.loginReturnButton:hover{background-color:#fafbfd;text-decoration:none}#login_help{margin-top:60px;color:#06f;display:block;float:left;font-size:12px;width:250px}#login_help2{margin-top:10px;color:#06f;display:block;float:left;font-size:12px;width:250px}#secondary_content{float:left;background:#fff;color:#444;padding:0 10px 0 20px;width:400px;height:400px;margin:0}#secondary_content #secondary_title{font:17px Arial,sans-serif;font-weight:bold;color:#2c5fac;text-align:left;clear:left;display:block}#secondary_content .contents{font:13px Arial,sans-serif;line-height:150%;color:#676767;text-align:left;padding:15px 0;clear:left;display:block}#secondary_content #secondary_title2{font:14px Arial,sans-serif;font-weight:bold;color:#2c5fac;text-align:left;clear:left;display:block}#secondary_content a{color:#06f}.helpInfo{color:#676767;text-align:left;width:400px;margin:0 0 15px 44px;padding:0}.entryHelpName{color:#676767;text-align:left;font-weight:bold;margin:10px 0 5px 44px;width:350px;padding:0}.entryHelpInput{color:#676767;margin:0;width:350px;padding:0 0 5px 45px}.entryStar{display:inline;padding-left:3px;color:#000}.outValue{color:#676767;margin:0 0 5px 44px;width:350px;padding:0}.refresh{font:bold 13px Arial,sans-serif;color:#06f;padding:0;background:#fff;border:1px solid #fff;cursor:pointer}.refresh:hover{background:#fafbfd;color:#06f;border:1px solid #cdcdcd}
+	.editButton{height:20px;float:none;font:13px Arial;overflow:visible;background-color:#f4bb31;border-radius:.3em;color:#000;border-top:1px solid #fcdb9f;border-bottom:1px solid #dd9104;border-right:1px solid #dd9104;border-left:1px solid #fcdb9f;padding:0px 17px 0px 17px;margin:0 10px 0 0;cursor:pointer}
+	.editButton:hover{background-color:#f7c66c;border-color:#f3a005 #fcdb9f #fcdb9f #f3a005;border-style:solid;border-width:1px}
+	
+	#footer{
+	clear:both;
+	color:#999;
+	font-size:10px;
+	width:100%;
+	margin-top:0px;
+	margin-bottom:0px;
+	padding-top:0px;
+	text-align:center;
+	z-index:0;
+	border-top:1px solid #f0f0f0
+	}
+	
+	#footer1{
+	clear:both;
+	color:#999;
+	font-size:10px;
+	width:100%;
+	margin-top:50px;
+	margin-bottom:20px;
+	padding-top:80px;
+	text-align:center;
+	z-index:0;
+	border-top:1px solid #f0f0f0
+	}
+	fieldset{float:left;clear:left;width:100%;margin:0;padding:0;border:0}fieldset fieldset{border-style:none;background:0;margin:0;padding:0 0 0 130px;display:inline}
+	fieldset fieldset input,fieldset fieldset img{vertical-align:top;margin-bottom:5px}fieldset fieldset input{font-size:1.0em;width:270px}fieldset fieldset 
+	span{display:block;font-size:10px;margin-bottom:2px;width:auto}fieldset fieldset label span{width:120px}form.stack fieldset fieldset{padding:0}fieldset ol{padding:0;margin:0;list-style:none}fieldset li{margin:0;padding:0;float:left;clear:left;width:100%;padding-bottom:1em}fieldset.submit{float:none;width:240px;border:0 none #fff;margin-left:132px;border-style:none;display:inline}form.stack fieldset.submit{margin-left:0;width:auto}fieldset.submit input,form.stack fieldset.submit input{width:auto}fieldset input,fieldset select{font-size:1.0em;width:240px;border:1px solid #7f9db9}form.stack fieldset input,form.stack fieldset select{width:270px}fieldset fieldset label{margin-left:-130px}
+	span#dev_mode{float:right;color:#c90000;display:block;font-size:14px;margin:16px 15px}
+	#info{float:left;font-weight:normal;color:#676767;margin:10px 0 10px 44px;width:400px;padding:0}.error_msg{color:#000;margin:10px 0 10px 44px;width:350px;padding:0}.errorDiv{border:1px solid #ff4301;background-color:#ffeef3;border-radius:.5em;list-style-type:none;margin:5px 0 10px 0;padding:10px}.errorDiv .errorIcon2{display:block;width:24px;height:24px;background-image:url('/images/interface/master_sprite.png');background-position:-84px -185px;background-repeat:no-repeat;float:left}.errorDiv .globalError{margin-left:30px;padding-top:5px}.errorrow{margin-bottom:5px}.errInputCls{color:#c00;background-image:url("/images/interface/error_underline.gif");background-position:bottom left;background-repeat:repeat-x;font-size:12px;display:inline}.warningInputCls{color:#d29600;background-image:url("/images/interface/warning_underline.gif");background-position:bottom left;background-repeat:repeat-x}.altTextCls{color:red}.messageHeading{width:100%;color:black;font-weight:bold;border-bottom:1px solid #ccc;padding-bottom:3px;margin-bottom:2px}#secImg{margin-left:0}.customFieldBorder{color:#676767;text-align:left;margin:0 0 5px 44px;width:275px;padding:0}.label{color:#676767;text-align:left;font-weight:bold;margin:10px 0 5px 0;width:275px;padding:0}.entryInputCF{color:#676767}.clearfix:after{visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0}.clearfix{display:inline-block}/*\*/* html .clearfix{height:1%}.clearfix{display:block}/**/.fl{float:left}.fr{float:right}.cl{clear:both}ul.loginpan{margin:0;padding:0;border:1px solid #00c}ul.loginpan li{list-style:none;margin:0;padding:0;border:1px solid #c00;clear:left;display:block}.spritepan{background:url(/images/interface/master_sprite.png) no-repeat}.updateSecurityQuestion{margin:0 0 0 20px;padding:0;width:400px}.updateSecurityQuestion #helpWelcome{color:#2c5fac;font:bold 18px Arial,sans-serif;margin:25px 0 15px 0;padding:0}.updateSecurityQuestion .helpInfo{color:#676767;margin:0 0 15px 0;padding:0}.updateSecurityQuestion .stack{margin:0;padding:0}.updateSecurityQuestion .entryHelpName{color:#676767;font-weight:bold;margin:5px 0;padding:0;display:block;clear:left}.updateSecurityQuestion .entryHelpInput{color:#676767;font-weight:bold;margin:5px 0;padding:0;display:block;clear:left;text-align:left}.updateSecurityQuestion .actionButtonArea{border-top:1px solid #cdcdcd;margin:10px 0 0 0;padding:10px 0 0 0}.updateSecurityQuestion #emailAddressProfile,.updateSecurityQuestion #secretQuestion,.updateSecurityQuestion #answerToSecretQuestion,.updateSecurityQuestion #emailAddressProfileHelp,.updateSecurityQuestion #confirmAnswerToSecretQuestion{margin:0!important;padding:0;width:100%}.updateSecurityQuestion #emailAddressProfileHelp{font-size:10px;padding-top:5px}

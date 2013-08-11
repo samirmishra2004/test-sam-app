@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import com.share.trade.bd.FutureGapTradeBD;
 import com.share.trade.bd.ScriptMapperBD;
 import com.share.trade.bd.StrategyBD;
 import com.share.trade.dao.CommonDAO;
@@ -74,26 +75,27 @@ public static String trimDoubleQuote(String stock){
 }
 public static void createCronObjectMap(){
 	ScriptMapperBD bd=new ScriptMapperBD();
+	FutureGapTradeBD gapTradeBD=new FutureGapTradeBD();
 	bd.getMappedScript();
-	if(ShareUtil.WATCHER_SCRIPT_SET.size()>0){
+		if(ShareUtil.WATCHER_SCRIPT_SET.size()>0){
+			
+		HashMap<String, Object> infoMap=null;	
+		ShareUtil.stockWatcherData.clear();
+		System.out.println("WATCHER_SCRIPT_SET "+ShareUtil.WATCHER_SCRIPT_SET);
+		for(String s:ShareUtil.WATCHER_SCRIPT_SET){
+			
+			
+			infoMap = new HashMap<String, Object>();
+			infoMap.put(ShareUtil.BUY_ALTERD, new Boolean(false));
+			infoMap.put(ShareUtil.SELL_ALTERD, new Boolean(false));
+			ShareUtil.stockWatcherData.put(s, infoMap);
+			
+		}
 		
-	HashMap<String, Object> infoMap=null;	
-	ShareUtil.stockWatcherData.clear();
-	System.out.println("WATCHER_SCRIPT_SET "+ShareUtil.WATCHER_SCRIPT_SET);
-	for(String s:ShareUtil.WATCHER_SCRIPT_SET){
 		
-		
-		infoMap = new HashMap<String, Object>();
-		infoMap.put(ShareUtil.BUY_ALTERD, new Boolean(false));
-		infoMap.put(ShareUtil.SELL_ALTERD, new Boolean(false));
-		ShareUtil.stockWatcherData.put(s, infoMap);
-		
-	}
+		}
 	
-	
-	}
-	
-	
+	gapTradeBD.getMappedScript();
 }
 public static void uiLog(String msg,String activity) throws Exception{
 	ActivityLog activityLog=new ActivityLog();
