@@ -56,7 +56,7 @@ public class CronAction{
 		Strategy strategy=strategyBD.getStrategy(ShareUtil.DEFAULTSTRATEGY);
 		ScriptMapper scriptMapper=null;
 		
-		if(HOUR == 9 && MINUT <=19){
+		if(HOUR == 9 && MINUT <=33){
 		System.out.println("Clear the log");
 		MethodUtil.clearLog("");
 		//reset static values
@@ -76,9 +76,13 @@ public class CronAction{
 		if(strategy.isFutGapTrd()){
 			System.out.println("=========Gap update Start with"+ShareUtil.WATCHER_FNO_SCRIPT_SET.size()+" script =======");
 			for(FutureGapScript gs:ShareUtil.WATCHER_FNO_SCRIPT_SET){
-				
+				if(HOUR == 9 && MINUT <=33){
+					gs.setMaxGap(null);
+					gs.setMinGap(null);
+				}
 				futureGapTradeBD.updateCalculatedGap(gs);
 			}
+			futureGapTradeBD.getMappedScript();
 			System.out.println("=========Gap update End =======");
 		}else
 		

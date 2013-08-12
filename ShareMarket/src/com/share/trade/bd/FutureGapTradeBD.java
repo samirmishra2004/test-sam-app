@@ -63,6 +63,6 @@ public class FutureGapTradeBD {
 	}
 	
 	public void updateCalculatedGap(FutureGapScript gs){
-		futureGapDAO.updateCalculatedGap(gs);
+		futureGapDAO.updateCalculatedGap(gs);		
 	}
 }

@@ -149,20 +149,23 @@ public boolean deleteScript(FutureGapScript shares)throws Exception{
 		
 		System.out.println("Actual Gap :"+actualGap);
 		System.out.println("Percentage Gap :"+gapPercent);
-		if(gapScript.getMaxGap()==null&&gapScript.getMinGap()==null){
+		if(gapScript.getMaxGap()==null||gapScript.getMinGap()==null){
 			//% calulation
-			
+			System.out.println("Both are null first time:");
 			
 			
 			gapScript.setMaxGap(MethodUtil.roundOff(gapPercent));
-			gapScript.setMaxGap(MethodUtil.roundOff(gapPercent));
+			gapScript.setMinGap(MethodUtil.roundOff(gapPercent));
 		}
+		System.out.println("Previous Max Gap :"+gapScript.getMaxGap());
+		System.out.println("Previous Min Gap :"+gapScript.getMinGap());
 		
-		if(gapScript.getMaxGap()!=null&&MethodUtil.roundOff(gapPercent)>0&&actualGap>gapScript.getMaxGap()){
-			gapScript.setMaxGap(actualGap);
+		if(gapScript.getMaxGap()!=null&&MethodUtil.roundOff(gapPercent)>0&&MethodUtil.roundOff(gapPercent)>gapScript.getMaxGap()){
+			
+			gapScript.setMaxGap(MethodUtil.roundOff(gapPercent));
 		}
-		if(gapScript.getMinGap()!=null&&actualGap>0&&MethodUtil.roundOff(gapPercent)<gapScript.getMinGap()){
-			gapScript.setMinGap(actualGap);
+		if(gapScript.getMinGap()!=null&&MethodUtil.roundOff(gapPercent)<gapScript.getMinGap()){
+			gapScript.setMinGap(MethodUtil.roundOff(gapPercent));
 		}
 		
 		gapScript.setLotSize(Long.parseLong(quoteNearMonth.getLotSize()));

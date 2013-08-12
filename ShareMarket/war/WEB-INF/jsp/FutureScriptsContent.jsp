@@ -38,7 +38,7 @@
 			<td align=center  class=><input type="text" name="lotSize" id="lotSize_${loop.index}" value="${script.lotSize}" style="border:0;"  readonly=true /></td>
 			
 			<td align=center  class=><input type="text" name="maxGap" id="maxGap_${loop.index}" value="${script.maxGap}" style="border:0;"  readonly=true /></td>
-			<td align=center  class=><input type="text" name="minGap" id="minGap_${loop.index}" value="${script.maxGap}" style="border:0;"  readonly=true /></td>
+			<td align=center  class=><input type="text" name="minGap" id="minGap_${loop.index}" value="${script.minGap}" style="border:0;"  readonly=true /></td>
 			<td align=center  class=><input type="text" name="tradeOpenClose" id="tradeStatus_${loop.index}" value="${script.tradeOn}" style="border:0;"  readonly=true /></td>
 				
 			<td align=center  class=><table><tr><td>
