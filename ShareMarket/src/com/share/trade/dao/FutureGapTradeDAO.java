@@ -168,6 +168,7 @@ public boolean deleteScript(FutureGapScript shares)throws Exception{
 			gapScript.setMinGap(MethodUtil.roundOff(gapPercent));
 		}
 		
+		if(quoteNearMonth.getLotSize()!=null)
 		gapScript.setLotSize(Long.parseLong(quoteNearMonth.getLotSize()));
 		
 		
