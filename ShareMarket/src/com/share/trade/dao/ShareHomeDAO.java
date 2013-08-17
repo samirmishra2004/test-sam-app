@@ -253,7 +253,7 @@ public class ShareHomeDAO {
     	}
     	return stockInfo;
     }
-    public FutureScriptQuote getRealTimeFutureQuote(String  scUrl){
+    public synchronized FutureScriptQuote getRealTimeFutureQuote(String  scUrl) throws Exception{
 		
 		String url=ShareUtil.MONEY_CONTROL_FNO_URL+scUrl;
 		
@@ -261,9 +261,10 @@ public class ShareHomeDAO {
 		FutureScriptQuote quote=new FutureScriptQuote();
 		Document doc;
     	try {
-    		doc = Jsoup.connect(url).get();
+    		doc = Jsoup.connect(url).timeout(10*1000).get();
     		
-    		Elements futureCurPriceElements= doc.select("p[class^=gr_28 FL]");
+    		
+    		Elements futureCurPriceElements= doc.select("p[class^=r_28 FL]");
     		System.out.println("Current Price : "+futureCurPriceElements.get(0).text());
     		//set quote
     		quote.setCurrentPrice(futureCurPriceElements.get(0).text());
@@ -359,7 +360,8 @@ public class ShareHomeDAO {
     		//System.out.println("previousClose: "+previousClose.get(1).text());
     	}
     	catch (Exception e) {
-			e.printStackTrace();
+    		System.err.println("Jsoup can not get the document :"+e.getMessage());
+			throw new Exception("Jsoup can not get the document :"+e.getMessage());
 		}
 		
 		return quote;

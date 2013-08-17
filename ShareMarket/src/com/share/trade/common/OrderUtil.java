@@ -38,6 +38,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 public class OrderUtil {
 	
@@ -345,5 +347,130 @@ public class OrderUtil {
 		}
 
 	}
+	public String getOrderStatus(FutureOrder fo){
+		
 
+		
+		System.out.println("User: "+usr);
+		System.out.println("pwd1: "+pwd1);
+		System.out.println("pwd2: "+pwd2);
+		System.out.println("BuyOrSell: "+fo.getBuyOrSell());
+		System.out.println("fo getNameAndMonth: "+fo.getNameAndMonth());
+		System.out.println("fo getLotSize: "+fo.getLotSize());
+		System.out.println("fo getPrice: "+fo.getPrice());
+		System.out.println("fo getScriptName: "+fo.getScriptName());
+		System.out.println("fo getMonthString: "+fo.getMonthString());
+		HttpParams httpParams = new BasicHttpParams();
+		ClientConnectionManager connectionManager = new GAEConnectionManager();
+		// Create a new HttpClient and Post Header
+		DefaultHttpClient httpclient = new DefaultHttpClient(connectionManager,
+				httpParams);
+		httpclient.getCookieSpecs().register("lenient",
+				new CookieSpecFactory() {
+					public CookieSpec newInstance(HttpParams params) {
+						return new LenientCookieSpec();
+					}
+				});
+		HttpClientParams.setCookiePolicy(httpclient.getParams(), "lenient");
+
+		HttpPost httppost = new HttpPost(
+				"https://strade.sharekhan.com/rmmweb/mcs.sk");
+		HttpContext localContext = new BasicHttpContext();
+
+		CookieStore cookieStore = new BasicCookieStore();
+		Cookie cookie = new BasicClientCookie("__utmmobile",
+				"0xfe0c66e8e940a67e");
+
+		cookieStore.addCookie(cookie);
+		httpclient.getParams().setParameter(ClientPNames.COOKIE_POLICY,
+				CookiePolicy.BROWSER_COMPATIBILITY);
+		httpclient.setCookieStore(cookieStore);
+
+		localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+		String responsetxt = null;
+		try {
+			// Add your data
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("login_id", usr));
+			nameValuePairs.add(new BasicNameValuePair("br_pwd", pwd1));
+			nameValuePairs.add(new BasicNameValuePair("tr_pwd", pwd2));
+
+			nameValuePairs.add(new BasicNameValuePair("collabration", "LBW"));
+			nameValuePairs.add(new BasicNameValuePair("e", "350"));
+			nameValuePairs.add(new BasicNameValuePair("flag", ""));
+			nameValuePairs.add(new BasicNameValuePair("w", "null"));
+			nameValuePairs.add(new BasicNameValuePair("submit", "LOGIN"));
+			
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+			// Execute HTTP Post Request
+			HttpResponse response = httpclient.execute(httppost, localContext);
+
+			HttpEntity entity = response.getEntity();
+			System.out.println(EntityUtils.toString(entity));
+			
+
+			
+			headers = response.getAllHeaders();
+			for (Header h : headers) {
+				// System.out.println(h.getName()+":"+h.getValue());
+
+			}
+			CookieStore store = httpclient.getCookieStore();
+			for (Cookie c : store.getCookies()) {
+				System.out.println(" is expired " + c.isExpired(new Date())
+						+ ":" + c.getName() + ":" + c.getExpiryDate());
+
+			}
+			try {
+
+				System.out
+						.println("###########################get order page ###################");
+				HttpGet getReq = new HttpGet(
+						"https://strade.sharekhan.com/rmmweb/mcs.sk?e=120&s="+fo.getScriptName()+"&scode="+fo.getScriptName()+"+"+fo.getMonthString()+"&token="+fo.getToken()+"&ex=NSEFO");
+
+				response = httpclient.execute(getReq, localContext);
+				for (Header h : response.getAllHeaders()) {
+					System.out.println(h.getName() + ":" + h.getValue());
+					if (h.getName().endsWith("Cookie")) {
+
+					}
+				}
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+						response.getEntity().getContent()));
+				StringBuffer sb = new StringBuffer("");
+				String line = "";
+				String NL = System.getProperty("line.separator");
+				while ((line = in.readLine()) != null) {
+					sb.append(line + NL);
+				}
+				in.close();
+				String page = sb.toString();
+				Document doc=Jsoup.parse(page);
+				
+				System.out.println("=============End Order Status check===============");
+				
+				
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+
+			return "sdfsd";
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			return e.getMessage();
+		} catch (IOException e) {
+			return e.getMessage();
+		} catch (Exception e) {
+			return e.getMessage();
+		} finally {
+
+		}
+
+	
+		
+		
+	}
 }

@@ -117,7 +117,7 @@ public boolean deleteScript(FutureGapScript shares)throws Exception{
 		
 		if(mapperDTOs.size()>0)return mapperDTOs.get(0);else return null;
 	}
-	public FutureGapScript updateCalculatedGap(FutureGapScript gapScript){
+	public FutureGapScript updateCalculatedGap(FutureGapScript gapScript) throws Exception{
 		
 		String url=gapScript.getWatcherScriptUrl()+"/"+gapScript.getExpDate1();
 		FutureScriptQuote quoteNearMonth=getRealTimeFutureQuote(url);

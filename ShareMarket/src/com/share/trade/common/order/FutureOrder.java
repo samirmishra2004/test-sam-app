@@ -36,7 +36,11 @@ public class FutureOrder implements OrderInterface {
 		ou.placeOrder(this);
 		setBuyOrSell(ShareUtil.SORT);
 	}
-
+	@Override
+	public void checkOrderStatus() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
 	public String getScriptName() {
 		return scriptName;
 	}
@@ -90,6 +94,7 @@ public class FutureOrder implements OrderInterface {
 	public void setToken(String token) {
 		this.token = token;
 	}
+	
 	
 	
 

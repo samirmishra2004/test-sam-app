@@ -62,7 +62,7 @@ public class FutureGapTradeBD {
 		MethodUtil.createCronObjectMap();
 	}
 	
-	public void updateCalculatedGap(FutureGapScript gs){
+	public void updateCalculatedGap(FutureGapScript gs) throws Exception{
 		futureGapDAO.updateCalculatedGap(gs);		
 	}
 }
