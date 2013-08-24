@@ -7,6 +7,7 @@ import com.share.trade.common.MethodUtil;
 import com.share.trade.common.ShareUtil;
 import com.share.trade.dao.FutureGapTradeDAO;
 import com.share.trade.database.FutureGapScript;
+import com.share.trade.database.Strategy;
 import com.share.trade.vo.FutureScriptQuote;
 
 public class FutureGapTradeBD {
@@ -62,7 +63,7 @@ public class FutureGapTradeBD {
 		MethodUtil.createCronObjectMap();
 	}
 	
-	public void updateCalculatedGap(FutureGapScript gs) throws Exception{
-		futureGapDAO.updateCalculatedGap(gs);		
+	public void updateCalculatedGap(FutureGapScript gs,Strategy stg) throws Exception{
+		futureGapDAO.updateCalculatedGap(gs,stg);		
 	}
 }

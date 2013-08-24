@@ -80,7 +80,7 @@ public class CronAction{
 					gs.setMaxGap(null);
 					gs.setMinGap(null);
 				}
-				futureGapTradeBD.updateCalculatedGap(gs);
+				futureGapTradeBD.updateCalculatedGap(gs,strategy);
 			}
 			futureGapTradeBD.getMappedScript();
 			System.out.println("=========Gap update End =======");

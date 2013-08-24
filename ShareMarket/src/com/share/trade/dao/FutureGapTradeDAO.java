@@ -12,6 +12,7 @@ import com.share.trade.common.MethodUtil;
 import com.share.trade.common.PMF;
 import com.share.trade.common.ShareUtil;
 import com.share.trade.database.FutureGapScript;
+import com.share.trade.database.Strategy;
 import com.share.trade.vo.FutureScriptQuote;
 
 public class FutureGapTradeDAO extends ShareHomeDAO{
@@ -117,7 +118,10 @@ public boolean deleteScript(FutureGapScript shares)throws Exception{
 		
 		if(mapperDTOs.size()>0)return mapperDTOs.get(0);else return null;
 	}
-	public FutureGapScript updateCalculatedGap(FutureGapScript gapScript) throws Exception{
+	public FutureGapScript updateCalculatedGap(FutureGapScript gapScript,Strategy stg) throws Exception{
+		
+		String buyFactor=stg.getBuyFactor();
+		String sellFactor=stg.getSellFactor();
 		
 		String url=gapScript.getWatcherScriptUrl()+"/"+gapScript.getExpDate1();
 		FutureScriptQuote quoteNearMonth=getRealTimeFutureQuote(url);
@@ -149,6 +153,55 @@ public boolean deleteScript(FutureGapScript shares)throws Exception{
 		
 		System.out.println("Actual Gap :"+actualGap);
 		System.out.println("Percentage Gap :"+gapPercent);
+		if("OPEN-BUY-FAR".equals(gapScript.getTradeOn())){
+			if(gapPercent>=Double.parseDouble("0.50")){
+				gapScript.setTradeOn("SQUAREDOFF");
+				MethodUtil.uiLog(
+						"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
+								+ " is signeled to Squared off OPEN-BUY-FAR @" + MethodUtil.roundOff(gapPercent),
+						ShareUtil.ORDER);
+			}
+		}else if("OPEN-SELL-FAR".equals(gapScript.getTradeOn())){
+			
+			if(gapPercent<=(Double.parseDouble(sellFactor)-Double.parseDouble("0.50"))){
+				gapScript.setTradeOn("SQUAREDOFF");
+
+				MethodUtil.uiLog(
+						"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
+								+ " is signeled to Squared off OPEN-SELL-FAR @" + MethodUtil.roundOff(gapPercent),
+						ShareUtil.ORDER);
+			}
+		}
+		
+		if(gapPercent<=Double.parseDouble(buyFactor)){
+			if(!"OPEN-BUY-FAR".equals(gapScript.getTradeOn())){
+				
+					gapScript.setTradeOn("OPEN-BUY-FAR");
+					MethodUtil.uiLog(
+							"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
+									+ " is signeled to OPEN-BUY-FAR @" + MethodUtil.roundOff(gapPercent),
+							ShareUtil.ORDER);
+				
+				
+			}
+			
+		}
+		if(gapPercent>=Double.parseDouble(sellFactor)){
+			if(stg.isAutoTrade()){
+			
+			}
+			if(!"OPEN-SELL-FAR".equals(gapScript.getTradeOn())){
+				
+				gapScript.setTradeOn("OPEN-SELL-FAR");
+				MethodUtil.uiLog(
+						"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
+								+ " is signeled to OPEN-SELL-FAR @" + MethodUtil.roundOff(gapPercent),
+						ShareUtil.ORDER);
+			
+				gapScript.setTradeOn("OPEN-SELL-FAR");
+			}
+			
+		}
 		if(gapScript.getMaxGap()==null||gapScript.getMinGap()==null){
 			//% calulation
 			System.out.println("Both are null first time:");
