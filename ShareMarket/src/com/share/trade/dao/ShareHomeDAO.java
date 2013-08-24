@@ -27,6 +27,7 @@ import org.mortbay.log.Log;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Text;
+import com.share.trade.common.MethodUtil;
 import com.share.trade.common.PMF;
 import com.share.trade.common.ShareUtil;
 import com.share.trade.vo.FutureScriptQuote;
@@ -265,10 +266,14 @@ public class ShareHomeDAO {
     		
     		
     		Elements futureCurPriceElements= doc.select("p[class^=r_28 FL]");
+    		if(futureCurPriceElements!=null&&futureCurPriceElements.size()>0){
     		System.out.println("Current Price : "+futureCurPriceElements.get(0).text());
     		//set quote
-    		quote.setCurrentPrice(futureCurPriceElements.get(0).text());
-    		
+    		quote.setCurrentPrice(MethodUtil.removeComma(futureCurPriceElements.get(0).text()));
+    		}else{
+    			futureCurPriceElements= doc.select("p[class^=gr_28 FL]");
+    			quote.setCurrentPrice(MethodUtil.removeComma(futureCurPriceElements.get(0).text()));
+    		}
     		Elements futureQuoteHtmlElements1= doc.select("div[class^=FL PA10 brdr]");
     		
     		Elements futureQuoteHtmlElements2= doc.select("div[class^=FR PA10]");
@@ -285,22 +290,22 @@ public class ShareHomeDAO {
         			
         			System.out.println("Oherer Param: "+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
         			//set quote
-        			quote.setOpenPrice(element.getElementsByTag("td").text());
+        			quote.setOpenPrice(MethodUtil.removeComma(element.getElementsByTag("td").text()));
         			
         			if(ohereElementIterator.hasNext()){
         		    element=ohereElementIterator.next();
         		    logger.info("day high :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
-        		    quote.setDayHigh(element.getElementsByTag("td").text());
+        		    quote.setDayHigh(MethodUtil.removeComma(element.getElementsByTag("td").text()));
         			}
         			if(ohereElementIterator.hasNext()){
             		    element=ohereElementIterator.next();
             		    logger.info("day low :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
-            		    quote.setDayLow(element.getElementsByTag("td").text());
+            		    quote.setDayLow(MethodUtil.removeComma(element.getElementsByTag("td").text()));
             		}
         			if(ohereElementIterator.hasNext()){
             		    element=ohereElementIterator.next();
             		    logger.info("previous close :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
-            		    quote.setPreviousClose(element.getElementsByTag("td").text());
+            		    quote.setPreviousClose(MethodUtil.removeComma(element.getElementsByTag("td").text()));
             		}
         			if(ohereElementIterator.hasNext()){
             		    element=ohereElementIterator.next();     //escAPE       		    
@@ -315,7 +320,7 @@ public class ShareHomeDAO {
         			if(ohereElementIterator.hasNext()){
             		    element=ohereElementIterator.next();
             		    logger.info("bid price :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
-            		    quote.setBidPrice(element.getElementsByTag("td").text());
+            		    quote.setBidPrice(MethodUtil.removeComma(element.getElementsByTag("td").text()));
             		}
         			//System.out.println("Oherer Param: "+element.html());
 
@@ -337,7 +342,7 @@ public class ShareHomeDAO {
         			if(ohereElementIterator.hasNext()){
             		    element=ohereElementIterator.next();
             		    logger.info("lot size :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
-            		    quote.setLotSize(element.getElementsByTag("td").text());
+            		    quote.setLotSize(MethodUtil.removeComma(element.getElementsByTag("td").text()));
             		}
         			if(ohereElementIterator.hasNext()){
             		    element=ohereElementIterator.next();        //escAPE         		    
@@ -351,7 +356,7 @@ public class ShareHomeDAO {
         			if(ohereElementIterator.hasNext()){
             		    element=ohereElementIterator.next();   
             		    logger.info("Offer Price :"+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
-            		    quote.setOffferPrice(element.getElementsByTag("td").text());
+            		    quote.setOffferPrice(MethodUtil.removeComma(element.getElementsByTag("td").text()));
             		}
         			//System.out.println("Oherer Param1: "+element.getElementsByTag("th").text()+" = "+element.getElementsByTag("td").text());
         			//Elements elementsNseContent= element.select("span[id^=gr_28 FL]");
@@ -370,5 +375,46 @@ public class ShareHomeDAO {
     public static void main(String[] args) {
 	//	ShareHomeDAO homeDAO=new ShareHomeDAO();
 	//	homeDAO.getRealTimeFutureQuote("sail/SAI/2013-08-29");
+    	
+    	/*try{
+    		Document doc=Jsoup.parse(new File("C:\\Users\\w7\\Desktop\\schoolmanagement\\srkOrder.html"), "UTF-8");
+    		//System.out.println(doc.html());
+    		
+    		Elements elements=doc.select("table[class^=rpm mkt]");
+    		String quote="sail".toUpperCase();
+    		String orderType="Sell";
+    		for(Element e:elements){
+    			//System.out.println(e.html());
+    			//System.out.println(e.children().get(0).child(1).html());
+    			Elements allOrderRows=e.children().get(0).children();
+    			
+    			for(int i=1;i<allOrderRows.size();i++){
+    				Elements tds=allOrderRows.get(i).children();
+    				boolean orderFound=false;
+    				for(Element td:tds){
+    					//System.out.println("found order");
+    					if(td.text().contains(quote)){
+    						System.out.println("Found Order");
+    						orderFound=true;
+    						//System.out.println(td.html());
+    					}
+    					if(td.text().contains(quote)&&td.nextElementSibling().text().contains(orderType)){
+    						System.out.println("Its "+orderType+" Order");
+    						//System.out.println(""+td.child(1).text());
+    						System.out.println(td.nextElementSibling().children().get(1).text());
+    					}else if(td.text().contains(quote)&&td.nextElementSibling().text().contains(orderType)){
+    						
+    					}
+    					
+    				}
+    				
+    				
+    				
+    			}
+    		}
+    	}catch (Exception e) {
+			// TODO: handle exception
+    		e.printStackTrace();
+		}*/
 	}
 }

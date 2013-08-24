@@ -37,9 +37,9 @@ public class FutureOrder implements OrderInterface {
 		setBuyOrSell(ShareUtil.SORT);
 	}
 	@Override
-	public void checkOrderStatus() throws Exception {
-		// TODO Auto-generated method stub
-		
+	public String checkOrderStatus() throws Exception {
+		OrderUtil ou=OrderUtil.getInstance();
+		return ou.getOrderStatus(this);		
 	}
 	public String getScriptName() {
 		return scriptName;

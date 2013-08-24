@@ -7,5 +7,5 @@ public interface OrderInterface {
 	
 	public void buy() throws Exception;
 	public void sell() throws Exception;
-	public void checkOrderStatus() throws Exception;
+	public String checkOrderStatus() throws Exception;
 }

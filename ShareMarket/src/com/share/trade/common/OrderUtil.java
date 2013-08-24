@@ -40,6 +40,8 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class OrderUtil {
 	
@@ -336,7 +338,6 @@ public class OrderUtil {
 
 			return "sdfsd";
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			return e.getMessage();
 		} catch (IOException e) {
 			return e.getMessage();
@@ -360,6 +361,7 @@ public class OrderUtil {
 		System.out.println("fo getPrice: "+fo.getPrice());
 		System.out.println("fo getScriptName: "+fo.getScriptName());
 		System.out.println("fo getMonthString: "+fo.getMonthString());
+		String status="";
 		HttpParams httpParams = new BasicHttpParams();
 		ClientConnectionManager connectionManager = new GAEConnectionManager();
 		// Create a new HttpClient and Post Header
@@ -425,9 +427,9 @@ public class OrderUtil {
 			try {
 
 				System.out
-						.println("###########################get order page ###################");
+						.println("###########################get order Status page ###################");
 				HttpGet getReq = new HttpGet(
-						"https://strade.sharekhan.com/rmmweb/mcs.sk?e=120&s="+fo.getScriptName()+"&scode="+fo.getScriptName()+"+"+fo.getMonthString()+"&token="+fo.getToken()+"&ex=NSEFO");
+						"https://strade.sharekhan.com/rmmweb/mcs.sk?e=124&pType=903&ex=NSEFO");
 
 				response = httpclient.execute(getReq, localContext);
 				for (Header h : response.getAllHeaders()) {
@@ -447,7 +449,36 @@ public class OrderUtil {
 				in.close();
 				String page = sb.toString();
 				Document doc=Jsoup.parse(page);
-				
+				Elements elements=doc.select("table[class^=rpm mkt]");
+	    		String quote=fo.getNameAndMonth();
+	    		String orderType=fo.getBuyOrSell();
+	    		if("B".equals(orderType)){
+	    			orderType="Buy";
+	    		}else if("S".equals(orderType)){
+	    			orderType="Sell";
+	    		}
+	    		for(Element e:elements){
+	    			
+	    			Elements allOrderRows=e.children().get(0).children();
+	    			
+	    			for(int i=1;i<allOrderRows.size();i++){
+	    				Elements tds=allOrderRows.get(i).children();
+	    				
+	    				for(Element td:tds){
+	    					
+	    					if(td.text().contains(quote)&&td.nextElementSibling().text().contains(orderType)){
+	    						System.out.println("Its "+orderType+" Order");	    						
+	    						status=td.nextElementSibling().children().get(1).text();
+	    						System.out.println("Status is : "+status);
+	    					}
+	    					
+	    				}
+	    				
+	    				
+	    				
+	    			}
+	    		}
+	    	
 				System.out.println("=============End Order Status check===============");
 				
 				
@@ -457,9 +488,8 @@ public class OrderUtil {
 			}
 			
 
-			return "sdfsd";
+			return status;
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			return e.getMessage();
 		} catch (IOException e) {
 			return e.getMessage();

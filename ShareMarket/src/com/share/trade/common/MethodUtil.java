@@ -201,4 +201,15 @@ public static boolean isEmpty(String s){
 	return (s==null || "".equals(s.trim()));
 	
 }
+public static String removeComma(String str){
+	
+	if(!isEmpty(str)&&str.contains(",")){
+		
+		str=str.replace(",","");
+		
+		
+	}return str;
+	
+}
+
 }

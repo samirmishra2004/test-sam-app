@@ -15,9 +15,8 @@ public class EquityOrder implements OrderInterface {
 	}
 
 	@Override
-	public void checkOrderStatus() throws Exception {
-		// TODO Auto-generated method stub
-		
+	public String checkOrderStatus() throws Exception {
+		return null;
 	}
 
 }

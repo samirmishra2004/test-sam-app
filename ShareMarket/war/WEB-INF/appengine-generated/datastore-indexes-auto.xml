@@ -1,4 +1,10 @@
-<!-- Indices written at Wed, 10 Jul 2013 09:41:37 IST -->
+<!-- Indices written at Sat, 24 Aug 2013 17:51:54 IST -->
 
-<datastore-indexes/>
+<datastore-indexes>
 
+    <!-- Used 1 time in query history -->
+    <datastore-index kind="ActivityLog" ancestor="false" source="auto">
+        <property name="__key__" direction="desc"/>
+    </datastore-index>
+
+</datastore-indexes>
