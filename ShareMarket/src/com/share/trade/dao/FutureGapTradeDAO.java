@@ -119,7 +119,8 @@ public boolean deleteScript(FutureGapScript shares)throws Exception{
 		if(mapperDTOs.size()>0)return mapperDTOs.get(0);else return null;
 	}
 	public FutureGapScript updateCalculatedGap(FutureGapScript gapScript,Strategy stg) throws Exception{
-		
+		//Case 1: buy far month sell near month
+		//Case 2: buy near month sell far month
 		String buyFactor=stg.getBuyFactor();
 		String sellFactor=stg.getSellFactor();
 		
@@ -129,96 +130,122 @@ public boolean deleteScript(FutureGapScript shares)throws Exception{
 		url=gapScript.getWatcherScriptUrl()+"/"+gapScript.getExpDate2();
 		FutureScriptQuote quoteFarMonth=getRealTimeFutureQuote(url);
 		
-		double askPriceOfNearMonth=0;
-		
-		
-		
+		double askPriceOfNearMonth=0;		
 		double bidPriceOfFarMonth=0;
-		double gapPercent=0;
-		double actualGap=0;
 		
+		
+		double askPriceOfFarMonth=0;		
+		double bidPriceOfNearMonth=0;
+		
+		double gapPercentCase1=0;
+		double actualGapCase1=0;
+		double gapPercentCase2=0;
+		double actualGapCase2=0;
+		
+		//case1
+		//buy far @ask price y
+		
+		if(!MethodUtil.isEmpty(quoteFarMonth.getOffferPrice())&&
+				!MethodUtil.isEmpty(quoteNearMonth.getBidPrice())){
+			askPriceOfFarMonth=Double.parseDouble(quoteFarMonth.getOffferPrice());
+			bidPriceOfNearMonth=Double.parseDouble(quoteNearMonth.getBidPrice());
+			actualGapCase1=askPriceOfFarMonth-bidPriceOfNearMonth;
+			
+			gapPercentCase1=(actualGapCase1/bidPriceOfNearMonth)*100;
+			
+			
+			
+		}
+		//case2
 		if(!MethodUtil.isEmpty(quoteNearMonth.getOffferPrice())&&
 				!MethodUtil.isEmpty(quoteFarMonth.getBidPrice())){
 			askPriceOfNearMonth=Double.parseDouble(quoteNearMonth.getOffferPrice());
 			bidPriceOfFarMonth=Double.parseDouble(quoteFarMonth.getBidPrice());
-			actualGap=bidPriceOfFarMonth-askPriceOfNearMonth;
+			actualGapCase2=bidPriceOfFarMonth-askPriceOfNearMonth;
 			
-			gapPercent=(actualGap/askPriceOfNearMonth)*100;
+			gapPercentCase2=(actualGapCase2/askPriceOfNearMonth)*100;
 			
 			
 			
 		}
+		System.out.println("Actual Gap cae1:"+actualGapCase1);
+		System.out.println("Percentage Gap case1 :"+gapPercentCase1);
+		System.out.println("Actual Gap cae2:"+actualGapCase2);
+		System.out.println("Percentage Gap case2 :"+gapPercentCase2);
+		//close position
 		
-		
-		
-		System.out.println("Actual Gap :"+actualGap);
-		System.out.println("Percentage Gap :"+gapPercent);
-		if("OPEN-BUY-FAR".equals(gapScript.getTradeOn())){
-			if(gapPercent>=Double.parseDouble("0.50")){
-				gapScript.setTradeOn("SQUAREDOFF");
+		//case 1: buy far
+		if(ShareUtil.OPEN_BUY_FAR.equals(gapScript.getTradeOn())){
+			if(gapPercentCase2>=(Double.parseDouble(sellFactor)+Double.parseDouble("0.50"))){
+				gapScript.setTradeOn(ShareUtil.SQUREOFF);
 				MethodUtil.uiLog(
 						"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
-								+ " is signeled to Squared off OPEN-BUY-FAR @" + MethodUtil.roundOff(gapPercent),
+								+ " is signeled to Squared off OPEN-BUY-FAR @" + MethodUtil.roundOff(gapPercentCase2),
 						ShareUtil.ORDER);
 			}
-		}else if("OPEN-SELL-FAR".equals(gapScript.getTradeOn())){
+		}else if(ShareUtil.OPEN_SELL_FAR.equals(gapScript.getTradeOn())){//case 2: sell far
 			
-			if(gapPercent<=(Double.parseDouble(sellFactor)-Double.parseDouble("0.50"))){
-				gapScript.setTradeOn("SQUAREDOFF");
+			if(gapPercentCase1<=(Double.parseDouble(sellFactor)-Double.parseDouble("0.50"))){
+				gapScript.setTradeOn(ShareUtil.SQUREOFF);
 
 				MethodUtil.uiLog(
 						"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
-								+ " is signeled to Squared off OPEN-SELL-FAR @" + MethodUtil.roundOff(gapPercent),
+								+ " is signeled to Squared off OPEN-SELL-FAR @" + MethodUtil.roundOff(gapPercentCase2),
 						ShareUtil.ORDER);
 			}
 		}
-		
-		if(gapPercent<=Double.parseDouble(buyFactor)){
-			if(!"OPEN-BUY-FAR".equals(gapScript.getTradeOn())){
-				
-					gapScript.setTradeOn("OPEN-BUY-FAR");
-					MethodUtil.uiLog(
-							"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
-									+ " is signeled to OPEN-BUY-FAR @" + MethodUtil.roundOff(gapPercent),
-							ShareUtil.ORDER);
-				
-				
-			}
-			
-		}
-		if(gapPercent>=Double.parseDouble(sellFactor)){
+		//take position case1
+				if(gapPercentCase1<=Double.parseDouble(buyFactor)){
+					if(!ShareUtil.OPEN_BUY_FAR.equals(gapScript.getTradeOn())&&!ShareUtil.SQUREOFF.equals(gapScript.getTradeOn())){
+						
+							gapScript.setTradeOn(ShareUtil.OPEN_BUY_FAR);
+							MethodUtil.uiLog(
+									"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
+											+ " is signeled to OPEN-BUY-FAR @" + MethodUtil.roundOff(gapPercentCase2),
+									ShareUtil.ORDER);
+						
+						
+					}
+		//take position case2
+		if(gapPercentCase2>=Double.parseDouble(sellFactor)&&!ShareUtil.SQUREOFF.equals(gapScript.getTradeOn())){
 			if(stg.isAutoTrade()){
 			
 			}
-			if(!"OPEN-SELL-FAR".equals(gapScript.getTradeOn())){
+			if(!ShareUtil.OPEN_SELL_FAR.equals(gapScript.getTradeOn())){
 				
-				gapScript.setTradeOn("OPEN-SELL-FAR");
+				gapScript.setTradeOn(ShareUtil.OPEN_SELL_FAR);
 				MethodUtil.uiLog(
 						"<font color=green>Auto Trade: </font>" + gapScript.getTradeScript1()
-								+ " is signeled to OPEN-SELL-FAR @" + MethodUtil.roundOff(gapPercent),
+								+ " is signeled to OPEN-SELL-FAR @" + MethodUtil.roundOff(gapPercentCase2),
 						ShareUtil.ORDER);
 			
-				gapScript.setTradeOn("OPEN-SELL-FAR");
+				//gapScript.setTradeOn("OPEN-SELL-FAR");
 			}
 			
 		}
+		
+			
+		}
+		
+		
+		//update current gap
 		if(gapScript.getMaxGap()==null||gapScript.getMinGap()==null){
 			//% calulation
 			System.out.println("Both are null first time:");
 			
 			
-			gapScript.setMaxGap(MethodUtil.roundOff(gapPercent));
-			gapScript.setMinGap(MethodUtil.roundOff(gapPercent));
+			gapScript.setMaxGap(MethodUtil.roundOff(gapPercentCase2));
+			gapScript.setMinGap(MethodUtil.roundOff(gapPercentCase1));
 		}
 		System.out.println("Previous Max Gap :"+gapScript.getMaxGap());
 		System.out.println("Previous Min Gap :"+gapScript.getMinGap());
 		
-		if(gapScript.getMaxGap()!=null&&MethodUtil.roundOff(gapPercent)>0&&MethodUtil.roundOff(gapPercent)>gapScript.getMaxGap()){
+		if(gapScript.getMaxGap()!=null&&MethodUtil.roundOff(gapPercentCase2)>0&&MethodUtil.roundOff(gapPercentCase2)>gapScript.getMaxGap()){
 			
-			gapScript.setMaxGap(MethodUtil.roundOff(gapPercent));
+			gapScript.setMaxGap(MethodUtil.roundOff(gapPercentCase2));
 		}
-		if(gapScript.getMinGap()!=null&&MethodUtil.roundOff(gapPercent)<gapScript.getMinGap()){
-			gapScript.setMinGap(MethodUtil.roundOff(gapPercent));
+		if(gapScript.getMinGap()!=null&&MethodUtil.roundOff(gapPercentCase1)<gapScript.getMinGap()){
+			gapScript.setMinGap(MethodUtil.roundOff(gapPercentCase1));
 		}
 		
 		if(quoteNearMonth.getLotSize()!=null)

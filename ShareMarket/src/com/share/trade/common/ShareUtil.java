@@ -48,5 +48,7 @@ public static String BROKER_SHAREKHAN="SHAREKHAN";
 public static double LONG_TRADE_SQ_HOOK_P=0.0;
 public static double SORT_TRADE_SQ_HOOK_P=0.0;
 
-
+public static String OPEN_BUY_FAR="buyFarSellNear";
+public static String OPEN_SELL_FAR="sellFarBuyNear";
+public static String SQUREOFF="squareOff";
 }
