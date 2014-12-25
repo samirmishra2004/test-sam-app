@@ -79,6 +79,7 @@ public class CronAction{
 				if(HOUR == 9 && MINUT <=33){
 					gs.setMaxGap(null);
 					gs.setMinGap(null);
+					gs.setTradeOn("");
 				}
 				futureGapTradeBD.updateCalculatedGap(gs,strategy);
 			}
