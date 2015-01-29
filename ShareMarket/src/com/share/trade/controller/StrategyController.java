@@ -42,11 +42,13 @@ public class StrategyController{
 		String tradeSegment=req.getParameter("tradeSegment");
 		String tradeValue=req.getParameter("tradeAmount");
 		String isForceSquareOffStr=req.getParameter("forceSquareOff");
+		String isTradeOnMarket=req.getParameter("tradeOnMarket");
 		String openPositionHour=req.getParameter("openPositionHour");
 		String openPositionMinut=req.getParameter("openPositionMinut");
 		String closePositionHour=req.getParameter("closePositionHour");
 		String closePositionMinut=req.getParameter("closePositionMinut");
 		String futGapTrd=req.getParameter("futGapTrd");
+		
 		log.info("buyFactor "+buyFactor);
 		log.info("sellFactor "+sellFactor);
 		log.info("tradeOnOff "+tradeOnOff);
@@ -54,6 +56,7 @@ public class StrategyController{
 		log.info("globalSentiment "+globalSentiment);
 		log.info("tradeSegment "+tradeSegment);
 		log.info("isForceSquareOffStr "+isForceSquareOffStr);
+		log.info("isTradeOnMarket "+isTradeOnMarket);
 		log.info("openPositionHour "+openPositionHour);
 		log.info("openPositionMinut "+openPositionMinut);
 		log.info("closePositionHour "+closePositionHour);
@@ -71,6 +74,7 @@ public class StrategyController{
 		stg.setTradeAmount(tradeValue);
 		stg.setForcesSquareOff(Boolean.parseBoolean(isForceSquareOffStr));
 		stg.setAutoTrade(Boolean.parseBoolean(isAutoTrade));
+		stg.setTradeOnMarket(Boolean.parseBoolean(isTradeOnMarket));
 		stg.setPositionOpenHour(openPositionHour);
 		stg.setPositionOpenMinut(openPositionMinut);
 		stg.setPositionCloseHour(closePositionHour);

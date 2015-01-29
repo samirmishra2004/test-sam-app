@@ -36,6 +36,7 @@ public static String LONG="LONG";
 public static String SORT="SORT";
 public static String BUY_ORDER="B";
 public static String SELL_ORDER="S";
+public static String SORTSELL_ORDER="SS";
 public static String ORDER="ORDER";
 public static HashMap<String, String> sentiment=new HashMap<String, String>();
 static{

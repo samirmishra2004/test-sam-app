@@ -119,6 +119,7 @@ function save(){
 		
 		</select>
 		</td>
+		
 	</tr>
 	<tr height="80%">
 		<td>
@@ -129,6 +130,17 @@ function save(){
 		ON:<input type=radio name=forceSquareOff value="true" <c:if test="${strategy.forcesSquareOff}">checked</c:if>/>
 		&nbsp;&nbsp;&nbsp;
 		OFF:<input type=radio name=forceSquareOff value="false" <c:if test="${!strategy.forcesSquareOff}">checked</c:if>/>
+		</td>
+	</tr>
+	<tr height="80%">
+		<td>
+		TradeOnMarketPrice 
+		</td>
+		
+		<td>
+		ON:<input type=radio name=tradeOnMarket value="true" <c:if test="${strategy.tradeOnMarket}">checked</c:if>/>
+		&nbsp;&nbsp;&nbsp;
+		OFF:<input type=radio name=tradeOnMarket value="false" <c:if test="${!strategy.tradeOnMarket}">checked</c:if>/>
 		</td>
 	</tr>
 	

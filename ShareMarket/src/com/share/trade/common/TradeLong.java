@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import com.share.trade.bd.TradeSummaryBD;
 import com.share.trade.bd.TradeWatcherBD;
+import com.share.trade.common.order.EquityOrder;
 import com.share.trade.common.order.FutureOrder;
 import com.share.trade.database.ScriptMapper;
 import com.share.trade.database.Strategy;
@@ -63,7 +64,9 @@ public class TradeLong {
 		String expiryDateStr = "";
 		String token = "";
 		String delemiter = "|";
-
+		boolean isEquityScript=false;
+		boolean isFutureScript=false;
+		
 		if (stg.getBuyFactor() != null && !"".equals(stg.getBuyFactor())) {
 			buyOrSellFactor = Double.parseDouble(stg.getBuyFactor());
 		}
@@ -122,7 +125,7 @@ public class TradeLong {
 
 		sp = stockWatchData.getSellPrice();
 		// reset flag everyday
-		if (HOUR == 9 && MINUT <= 19 && isBuyAlerted && isSellAlerted) {
+		if (HOUR == 9 && MINUT <= 33 && isBuyAlerted && isSellAlerted) {
 			stockWatchData.setBuyAlerted(false);
 			stockWatchData.setSellAlerted(false);
 			watcherBD.updateWatchScript(stockWatchData);
@@ -167,7 +170,7 @@ public class TradeLong {
 			System.out.println("(cap < bp) && (cap > oldPrice) "
 					+ ((cap < bp) && (cap > oldPrice)));
 
-			if (cap > 0 && (cap < bp) && (cp > oldPrice)) {
+			if (cap > 0 && (cap < bp) && (cap > oldPrice)) {
 
 				updateWatcher = false;
 
@@ -188,11 +191,11 @@ public class TradeLong {
 				ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
 				// =====================
 
-				if (increasedBy >= considerableIncrease) {
+				//if (increasedBy >= considerableIncrease) {
 					isByable = true;
 					increasedBy = 0.0;// reset
-					ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
-				}
+					//ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
+				//}
 
 			} else {
 				isByable = false;
@@ -215,24 +218,51 @@ public class TradeLong {
 					if (stg.isAutoTrade()) {
 						log.info("=========Auto Trade Start========");
 						// lotsize,scriptname and month
+						
 						try {
 							if (!MethodUtil.isEmpty(scriptNameAndMonth)) {
 								String[] fotureScriptNameAndMonth = scriptNameAndMonth
 										.trim().split(" ");
-								scriptName = fotureScriptNameAndMonth[0];
-								expiryDateStr = fotureScriptNameAndMonth[1];
-								token = fotureScriptNameAndMonth[2];
+								int length=fotureScriptNameAndMonth.length;
+								
+								if(length==3){
+									scriptName = fotureScriptNameAndMonth[0];
+									expiryDateStr = fotureScriptNameAndMonth[1];
+									token = fotureScriptNameAndMonth[2];
+									isFutureScript=true;
+								}
+								
+								if(length==1){
+									scriptName = fotureScriptNameAndMonth[0];
+									isEquityScript=true;
+								}
+							
+							}
+							if(isFutureScript){
+								FutureOrder fo = new FutureOrder();
+								fo.setBuyOrSell(ShareUtil.BUY_ORDER);
+								fo.setLotSize(Long.parseLong(tradeQuantity));
+								fo.setNameAndMonth(scriptNameAndMonth);
+								fo.setScriptName(scriptName);
+								fo.setMonthString(expiryDateStr);
+								fo.setToken(token);
+	
+								fo.placeOrder();
+							}
+							
+							if(isEquityScript){
+								EquityOrder eo = new EquityOrder();			
+								eo.setBuyOrSell(ShareUtil.BUY_ORDER);
+								eo.setLotSize(Long.parseLong(tradeQuantity));								
+								eo.setScriptName(scriptName);
+								if(stg.isTradeOnMarket()){
+									eo.setPrice(cap);
+									}else{
+										eo.setPrice(0);	
+									}								
+								eo.placeOrder();
 							}
 
-							FutureOrder fo = new FutureOrder();
-							fo.setBuyOrSell(ShareUtil.BUY_ORDER);
-							fo.setLotSize(Long.parseLong(tradeQuantity));
-							fo.setNameAndMonth(scriptNameAndMonth);
-							fo.setScriptName(scriptName);
-							fo.setMonthString(expiryDateStr);
-							fo.setToken(token);
-
-							fo.placeOrder();
 
 						} catch (Exception e) {
 							MethodUtil
@@ -325,14 +355,32 @@ public class TradeLong {
 				if ((cp < lastPrice) && (lastPrice < oldPrice)) {// continuously
 																	// decreased
 					System.out.println("decreased continuously thrise");
+					MethodUtil.uiLog(
+							"Script " + b
+									+ " decreased continuously thrise ."
+									+ "lastPrice- "+lastPrice
+									+ "oldPrice- "+oldPrice+" cp- "+cp, ShareUtil.ORDER
+									);
 					isSellable = true;
 				} else if (decreasedBy >= considerableChange) {
+					MethodUtil.uiLog(
+							"Script " + b
+									+ " decreased considerable.."
+									+ "considerableChange- "+considerableChange
+									+ "decreasedBy- "+decreasedBy+" cp- "+cp, ShareUtil.ORDER
+									);
 					System.out.println("decreased considerable..");
 					isSellable = true;
 					decreasedBy = 0;// reset
 					ShareUtil.PRICE_CHANGE_DEC_MAP.put(b, decreasedBy);
 				}
 				else if(hookPrice>0&&(hookPrice-cp)>=considerableChange){
+					MethodUtil.uiLog(
+							"Script " + b
+									+ " decreased considerabley since hooked price"
+									+ "considerableChange- "+considerableChange
+									+ "hookPrice- "+hookPrice+" cp- "+cp, ShareUtil.ORDER
+									);
 					System.out.println("decreased considerabley since hooked price");
 					isSellable = true;
 				}
@@ -380,20 +428,42 @@ public class TradeLong {
 							if (!MethodUtil.isEmpty(scriptNameAndMonth)) {
 								String[] fotureScriptNameAndMonth = scriptNameAndMonth
 										.trim().split(" ");
-								scriptName = fotureScriptNameAndMonth[0];
-								expiryDateStr = fotureScriptNameAndMonth[1];
-								token = fotureScriptNameAndMonth[2];
+								int length=fotureScriptNameAndMonth.length;
+								
+								
+								if(length==3){
+									scriptName = fotureScriptNameAndMonth[0];
+									expiryDateStr = fotureScriptNameAndMonth[1];
+									token = fotureScriptNameAndMonth[2];
+									isFutureScript=true;
+								}								
+								if(length==1){
+									scriptName = fotureScriptNameAndMonth[0];
+									isEquityScript=true;
+								}
 							}
-
-							FutureOrder fo = new FutureOrder();
-							fo.setBuyOrSell(ShareUtil.SELL_ORDER);
-							fo.setLotSize(Long.parseLong(tradeQuantity));
-							fo.setNameAndMonth(scriptNameAndMonth);
-							fo.setScriptName(scriptName);
-							fo.setMonthString(expiryDateStr);
-							fo.setToken(token);
-							fo.placeOrder();
-
+							if(isFutureScript){
+								FutureOrder fo = new FutureOrder();
+								fo.setBuyOrSell(ShareUtil.SELL_ORDER);
+								fo.setLotSize(Long.parseLong(tradeQuantity));
+								fo.setNameAndMonth(scriptNameAndMonth);
+								fo.setScriptName(scriptName);
+								fo.setMonthString(expiryDateStr);
+								fo.setToken(token);
+								fo.placeOrder();
+							}
+							if(isEquityScript){
+								EquityOrder eo = new EquityOrder();			
+								eo.setBuyOrSell(ShareUtil.SELL_ORDER);
+								eo.setLotSize(Long.parseLong(tradeQuantity));								
+								eo.setScriptName(scriptName);
+								if(stg.isTradeOnMarket()){
+									eo.setPrice(cbp);
+									}else{
+										eo.setPrice(0);	
+									}								
+								eo.placeOrder();
+							}
 						} catch (Exception e) {
 							MethodUtil
 									.uiLog("<font color=red>Auto Trade: Error</font>"
@@ -444,6 +514,9 @@ public class TradeLong {
 				//stockWatchData.setCurrentPrice2(cp);
 			//}
 		}
+		log.info("Updating stockWatchData for "+stockWatchData.getScriptName());
+		log.info("Updating stockWatchData isSellAlerted "+stockWatchData.isSellAlerted());
+		log.info("Updating stockWatchData isBuyAlerted "+stockWatchData.isBuyAlerted());
 		watcherBD.updateWatchScript(stockWatchData);
 
 	}

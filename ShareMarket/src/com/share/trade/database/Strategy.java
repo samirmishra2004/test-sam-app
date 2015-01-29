@@ -33,6 +33,8 @@ public class Strategy {
 	@Persistent
 	private boolean forcesSquareOff;
 	@Persistent
+	private boolean tradeOnMarket;
+	@Persistent
 	private String positionOpenHour;
 	@Persistent
 	private String positionCloseHour;
@@ -132,6 +134,12 @@ public class Strategy {
 	}
 	public void setFutGapTrd(boolean futGapTrd) {
 		this.futGapTrd = futGapTrd;
+	}
+	public boolean isTradeOnMarket() {
+		return tradeOnMarket;
+	}
+	public void setTradeOnMarket(boolean tradeOnMarket) {
+		this.tradeOnMarket = tradeOnMarket;
 	}
 		
 	

@@ -34,6 +34,7 @@ public class StrategyDAO {
 			stg.setGlobalSentiment(strategy.getGlobalSentiment());
 			stg.setTradeSegment(strategy.getTradeSegment());
 			stg.setTradeAmount(strategy.getTradeAmount());
+			stg.setTradeOnMarket(strategy.isTradeOnMarket());
 			stg.setForcesSquareOff(strategy.isForcesSquareOff());
 			stg.setPositionCloseHour(strategy.getPositionCloseHour());
 			stg.setPositionCloseMinut(strategy.getPositionCloseMinut());
