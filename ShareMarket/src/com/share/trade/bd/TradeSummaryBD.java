@@ -1,19 +1,11 @@
 package com.share.trade.bd;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.logging.Logger;
 
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
-
-import com.share.trade.common.PMF;
 import com.share.trade.dao.TradeSummaryDAO;
-import com.share.trade.database.Strategy;
 import com.share.trade.database.TradeSummary;
 
 public class TradeSummaryBD {
@@ -22,9 +14,17 @@ public class TradeSummaryBD {
 
 	public boolean addOrUpdateTradeSummary(double bp,double sp,String s) throws Exception{
 		TradeSummary ts=new TradeSummary();
+		double bpWithbrokrage=0;
+		double spWithbrokrage=0;
+		if(bp>0){
+		 bpWithbrokrage=(bp+(bp*0.0007));
+		}
+		if(sp>0){
+		 spWithbrokrage=(sp-(bp*0.0007));
+		}
 		ts.setScript(s);
-		ts.setBuyPrice(bp);
-		ts.setSellPrice(sp);
+		ts.setBuyPrice(bpWithbrokrage);
+		ts.setSellPrice(spWithbrokrage);
 		ts.setTradeDate(new java.util.Date());
 		tradeSummaryDAO.addOrUpdateTradeSummary(ts);
 		   return true;
