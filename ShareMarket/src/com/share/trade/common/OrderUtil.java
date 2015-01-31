@@ -511,16 +511,22 @@ public class OrderUtil {
 	
 	public  synchronized String placeOrder(EquityOrder eo) {
 		
-
-        // Create a new HttpClient and Post Header
-		DefaultHttpClient  httpclient = new DefaultHttpClient();
-		httpclient.getCookieSpecs().register("lenient", new CookieSpecFactory() {
-	        public CookieSpec newInstance(HttpParams params) {
-	            return new LenientCookieSpec();
-	        }
-	    });
-		HttpClientParams.setCookiePolicy(httpclient.getParams(), "lenient");
+		System.out.println("User: "+usr);
+       
 		
+		
+		HttpParams httpParams = new BasicHttpParams();
+		ClientConnectionManager connectionManager = new GAEConnectionManager();
+		// Create a new HttpClient and Post Header
+		DefaultHttpClient httpclient = new DefaultHttpClient(connectionManager,
+				httpParams);
+		httpclient.getCookieSpecs().register("lenient",
+				new CookieSpecFactory() {
+					public CookieSpec newInstance(HttpParams params) {
+						return new LenientCookieSpec();
+					}
+				});
+		HttpClientParams.setCookiePolicy(httpclient.getParams(), "lenient");
 		
         HttpPost httppost = new HttpPost("https://strade.sharekhan.com/rmmweb/mcs.sk");
         HttpContext localContext = new BasicHttpContext();

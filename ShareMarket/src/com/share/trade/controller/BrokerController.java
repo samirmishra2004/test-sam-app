@@ -16,6 +16,7 @@ import com.share.trade.bd.BrokerBD;
 import com.share.trade.common.MethodUtil;
 import com.share.trade.common.OrderUtil;
 import com.share.trade.common.ShareUtil;
+import com.share.trade.common.order.EquityOrder;
 import com.share.trade.common.order.FutureOrder;
 import com.share.trade.database.BrokerDetail;
 
@@ -56,15 +57,55 @@ public class BrokerController {
 		ModelAndView mvc =new ModelAndView("incorrectUrl");		
 		res.setContentType("text/html");
 		String message="order success";
+		boolean isEquityScript=false;
+		boolean isFutureScript=false;
+		
 		try {
+			String futureScript=req.getParameter("tradingScript");
+			String watcherScript=req.getParameter("watcherScript");
+			String tradeQuantity=req.getParameter("tradeQuantity");
+			String buyOrSell=req.getParameter("buyOrSell");
+			String futureScriptName="";
+			String futureMonth="";
+			String token="";
+			String scriptName=null;
+			String expiryDateStr=null;
+			
+			if (!MethodUtil.isEmpty(futureScript)) {
+				String[] fotureScriptNameAndMonth = futureScript
+						.trim().split(" ");
+				int length=fotureScriptNameAndMonth.length;
+				
+				if(length==3){
+					scriptName = fotureScriptNameAndMonth[0];
+					expiryDateStr = fotureScriptNameAndMonth[1];
+					token = fotureScriptNameAndMonth[2];
+					isFutureScript=true;
+				}
+				
+				if(length==1){
+					scriptName = fotureScriptNameAndMonth[0];
+					isEquityScript=true;
+				}
+			
+			}
+			
+			System.out.println("isEquityScript: "+isEquityScript);
+			if(isEquityScript){
+				EquityOrder eo = new EquityOrder();			
+				eo.setBuyOrSell(ShareUtil.BUY_ORDER);
+				eo.setLotSize(Long.parseLong(tradeQuantity));								
+				eo.setScriptName(scriptName);
+				//if(stg.isTradeOnMarket()){
+					eo.setPrice(0);
+				//	}else{
+				//		eo.setPrice(0);	
+				//	}								
+				eo.placeOrderManual();
+			}	
+		if(isFutureScript)	{
 		FutureOrder futureOrder=new FutureOrder();
-		String futureScript=req.getParameter("tradingScript");
-		String watcherScript=req.getParameter("watcherScript");
-		String tradeQuantity=req.getParameter("tradeQuantity");
-		String buyOrSell=req.getParameter("buyOrSell");
-		String futureScriptName="";
-		String futureMonth="";
-		String token="";
+		
 		if(!MethodUtil.isEmpty(futureScript)){
 			String[] fotureScriptNameAndMonth=futureScript.trim().split(" ");
 			futureScriptName=fotureScriptNameAndMonth[0];
@@ -82,6 +123,7 @@ public class BrokerController {
 		futureOrder.setToken(token);
 		
 			futureOrder.placeOrderManual();
+		}
 		} catch (Exception e) {
 			message="error while placing order";
 			e.printStackTrace();

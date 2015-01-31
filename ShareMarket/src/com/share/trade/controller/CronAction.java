@@ -93,6 +93,7 @@ public class CronAction{
 				boolean updateWatcherPrice=true;
 				ShareBean shareBean=homeBD.getRealTimeFinanceData(b,0);
 				ScriptMapper sm=mapperBD.getMappedScriptByScriptName(b);
+				System.out.println("broker script : "+sm.getBroker_script());
 				if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())&&
 						!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
 					updateWatcherPrice=false;

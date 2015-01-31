@@ -191,11 +191,11 @@ public class TradeLong {
 				ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
 				// =====================
 
-				//if (increasedBy >= considerableIncrease) {
+				if (increasedBy > 0) {
 					isByable = true;
 					increasedBy = 0.0;// reset
-					//ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
-				//}
+					ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
+				}
 
 			} else {
 				isByable = false;

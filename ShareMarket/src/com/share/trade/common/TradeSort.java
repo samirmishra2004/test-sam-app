@@ -181,15 +181,16 @@ public class TradeSort {
 					ShareUtil.PRICE_CHANGE_DEC_MAP.put(b, 0.00);
 				}
 				decreadedBy = decreadedBy + (latPrice - cp);
+				System.out.println("decreadedBy " + decreadedBy );
 				if (decreadedBy < 0) {
 					decreadedBy = 0;
 				}
 				// ===================
-				//if (decreadedBy >= considerableDecrease) {
+				if (decreadedBy >0) {
 					isSellable = true;
 					decreadedBy = 0;
 					ShareUtil.PRICE_CHANGE_DEC_MAP.put(b, decreadedBy);
-				//}
+				}
 			} else {
 				isSellable = false;
 			}
