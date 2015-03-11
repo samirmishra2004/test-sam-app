@@ -31,7 +31,8 @@ import org.apache.http.conn.scheme.*;
 public class GAEConnectionManager
   implements ClientConnectionManager {
   
-  public GAEConnectionManager() {
+  @SuppressWarnings("deprecation")
+public GAEConnectionManager() {
     SocketFactory no_socket_factory = new SocketFactory() {
 	public Socket connectSocket(Socket sock, String host, int port, 
 				    InetAddress localAddress, int localPort, 

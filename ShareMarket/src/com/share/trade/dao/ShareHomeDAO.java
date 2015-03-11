@@ -174,8 +174,8 @@ public class ShareHomeDAO {
     	url="http://www.moneycontrol.com/mccode/common/get_pricechart_div.php?bse_id=Y&nse_id=Y&sc_id="+scriptId+"&BNsetick=&ins=&sc_mapindex=21";
     	Document doc;
     	try {
-    		doc = Jsoup.connect(url).get();
-    	
+    		doc = Jsoup.connect(url).timeout(60*1000).get();
+    		
     	//Elements elements= doc.select("div[class^=w00]");
     	Elements elementsNse= doc.select("div[id^=content_nse]");
     	Elements elementsBse= doc.select("div[id^=content_bse]");

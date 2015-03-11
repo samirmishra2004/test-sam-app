@@ -390,8 +390,8 @@ public class TradeLong {
 				isSellable = true;
 			} else {
 				//stop loss logic
-				//if cp reduced 1.5 percent lower than bp triger stop loss
-				double slp=	bp - (bp*0.015);
+				//if cp reduced 1 percent lower than bp triger stop loss
+				double slp=	bp - (bp*0.009);
 				System.out.println("Stop loss price : "+slp);
 				if(cp<slp){
 					System.out.println("Stop los triggered...");

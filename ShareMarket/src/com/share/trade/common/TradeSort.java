@@ -388,7 +388,7 @@ public class TradeSort {
 				isByable = true;
 			}else{
 				//stop loss logic
-				double slp = sp + (sp*0.015);
+				double slp = sp + (sp*0.009);
 				System.out.println("its stoploss price is "+slp);
 				if(cp>slp){
 				System.out.println("its stoploss is triggered ");
