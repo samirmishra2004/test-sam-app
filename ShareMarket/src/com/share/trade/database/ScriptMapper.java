@@ -21,6 +21,8 @@ public class ScriptMapper {
 	@Persistent
 	private String tradeQuantity;
 	@Persistent
+	private String highBeta;
+	@Persistent
 	private String isActive;
 	@Persistent
 	private Date updatedDate;
@@ -62,6 +64,13 @@ public class ScriptMapper {
 	public void setTradeQuantity(String tradeQuantity) {
 		this.tradeQuantity = tradeQuantity;
 	}
+	public String getHighBeta() {
+		return highBeta;
+	}
+	public void setHighBeta(String highBeta) {
+		this.highBeta = highBeta;
+	}
+	
 	
 	
 	

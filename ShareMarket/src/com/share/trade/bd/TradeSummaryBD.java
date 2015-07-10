@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+import com.share.trade.common.MethodUtil;
 import com.share.trade.dao.TradeSummaryDAO;
 import com.share.trade.database.TradeSummary;
 
@@ -30,24 +31,28 @@ public class TradeSummaryBD {
 		   return true;
 	}
 	
-	public LinkedList<TradeSummary> getTradeMonthlySummary(){
+	public LinkedList<TradeSummary> getTradeMonthlySummary(String filterScript){
 		LinkedList<TradeSummary> tsl=new LinkedList<TradeSummary>();
 		LinkedList<TradeSummary> tsml=new LinkedList<TradeSummary>();
 		Calendar trdCal=Calendar.getInstance();
 		Calendar todayCal=Calendar.getInstance();
 		todayCal.setTime(new Date());
 		try{
-			tsl= tradeSummaryDAO.getTradeSummary();
+			tsl= tradeSummaryDAO.getTradeSummary(filterScript);
 			int month=0;
 			int index=0;
-			for(TradeSummary ts:tsl){
-				Date trdDate=ts.getTradeDate();
-				trdCal.setTime(trdDate);
-				month=trdCal.get(Calendar.MONTH);
-				if(todayCal.get(Calendar.YEAR)==trdCal.get(Calendar.YEAR)&&
-						trdCal.get(Calendar.MONTH)==todayCal.get(Calendar.MONTH)){
-					tsml.add(ts);
+			if(MethodUtil.isEmpty(filterScript)){
+				for(TradeSummary ts:tsl){
+					Date trdDate=ts.getTradeDate();
+					trdCal.setTime(trdDate);
+					month=trdCal.get(Calendar.MONTH);
+					if(todayCal.get(Calendar.YEAR)==trdCal.get(Calendar.YEAR)&&
+							trdCal.get(Calendar.MONTH)==todayCal.get(Calendar.MONTH)){
+						tsml.add(ts);
+					}
 				}
+			}else{
+				tsml=tsl;
 			}
 		}catch(Exception ex){
 			log.info("error "+ex.getMessage());

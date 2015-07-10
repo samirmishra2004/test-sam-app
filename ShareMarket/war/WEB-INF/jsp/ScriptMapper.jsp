@@ -16,6 +16,7 @@
 		<td align=center>Watcher Script</td>
 			<td align=center>Trading Script</td>
 			<td align=center>Quantity</td>
+			<td align=center>HighBeta</td>
 				<td align=center>Active</td>
 				<td align=center>Edit/Delete</td>
 				
@@ -31,6 +32,8 @@
 		<td align=center><input type="text" name="watcherScript" id="watcherScript_${loop.index}" value="${script.wtcher_script}" style="border:0;"  readonly=true /></td>
 			<td align=center><input type="text" name="tradingScript" id="tradingScript_${loop.index}" value="${script.broker_script}" style="border:0;"  readonly=true /></td>
 			<td align=center><input type="text" name="tradeQuantity" id="tradeQuantity_${loop.index}" value="${script.tradeQuantity}" style="border:0;"  readonly=true /></td>
+			
+			<td align=center><input type="checkbox" name="highBeta" id="highBeta_${loop.index}" disabled  <c:if test="${script.highBeta eq '1' }">checked='true'</c:if> /></td>
 				<td align=center><input type="checkbox" name="scriptActive" id="scriptActive_${loop.index}" disabled  <c:if test="${script.isActive eq '1' }">checked='true'</c:if> /></td>
 				<td align=center><table><tr><td>
 				<img src="images/edit.jpg" width="20" height="20" border="0" alt=""  id="scriptEdit_${loop.index}" style="cursor:hand;"  onclick="cancelEditing(previousEdit);enableEdit(${loop.index});" /> 

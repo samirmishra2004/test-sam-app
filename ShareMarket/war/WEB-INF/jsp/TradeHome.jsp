@@ -36,6 +36,7 @@
 	var tsov;
 	var asc;
 	var tq;
+	var hb;
 	var previousEdit=-1;
  
 	$(function(){
@@ -71,6 +72,7 @@
 			tradingScript=document.getElementById('tradingScript_'+index);
 			activeChkBox=document.getElementById('scriptActive_'+index);
 			tradeQuantity=document.getElementById('tradeQuantity_'+index);
+			highBeta=document.getElementById('highBeta_'+index);
 			editBtn=document.getElementById('scriptEdit_'+index);
 			deleteBtn=document.getElementById('scriptDelete_'+index);
 			saveBtn=document.getElementById('scriptUpdate_'+index);
@@ -80,7 +82,7 @@
 			tsov=tradingScript.value;
 			wsov=watcherScript.value;
 			tq=tradeQuantity.value;
-			
+			hb=highBeta.checked;
 			previousEdit=index;
 		//$("watcherScript_0").css("background-color","yellow");
 
@@ -96,6 +98,9 @@
 			//alert(2)
 			tradeQuantity.style.border="";
 			tradeQuantity.readOnly=false;
+
+			
+			highBeta.disabled=false;
 			
 			activeChkBox.disabled=false;
 
@@ -112,6 +117,7 @@
 			watcherScript=document.getElementById('watcherScript_'+index);
 			tradingScript=document.getElementById('tradingScript_'+index);
 			tradeQuantity=document.getElementById('tradeQuantity_'+index);
+			highBeta=document.getElementById('highBeta_'+index);
 			activeChkBox=document.getElementById('scriptActive_'+index);
 			editBtn=document.getElementById('scriptEdit_'+index);
 			deleteBtn=document.getElementById('scriptDelete_'+index);
@@ -123,6 +129,7 @@
 			watcherScript.value=wsov;
 			tradingScript.value=tsov;
 			tradeQuantity.value=tq;
+			highBeta.checked=hb;
 			activeChkBox.checked=asc;
 			
 			watcherScript.style.border=0;
@@ -134,6 +141,9 @@
 			//alert(2)
 			tradeQuantity.style.border=0;
 			tradeQuantity.readOnly=true;
+
+			
+			highBeta.disabled=true;
 			
 			activeChkBox.disabled=true;
 
@@ -162,13 +172,18 @@
 			tradingScript=document.getElementById('tradingScript_'+index).value;
 			activeChkBox=document.getElementById('scriptActive_'+index);
 			tradeQuantity=document.getElementById('tradeQuantity_'+index).value;
+			highBeta=document.getElementById('highBeta_'+index);
 			isActive="0";
+			isHighBeta="0";
 			if(activeChkBox.checked){
 				isActive="1";
 			}
-			
+			if(highBeta.checked){
+				isHighBeta="1";
+			}
 			url="updatescript.do?watcherScript="+watcherScript+"&traderScript="+tradingScript;
 			url=url+"&activeChkBox="+isActive+"&scriptId="+scriptId+"&tradeQuantity="+tradeQuantity;
+			url=url+"&highBeta="+isHighBeta;
 			url=encodeURI(url);
 			//alert(url)
 			$("#contentDiv").load(url);

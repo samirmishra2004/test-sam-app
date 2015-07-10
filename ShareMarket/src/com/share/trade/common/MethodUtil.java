@@ -1,5 +1,7 @@
 package com.share.trade.common;
 
+import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +13,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import com.google.appengine.api.urlfetch.FetchOptions;
+import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.share.trade.bd.FutureGapTradeBD;
 import com.share.trade.bd.ScriptMapperBD;
 import com.share.trade.bd.StrategyBD;
@@ -210,6 +219,68 @@ public static String removeComma(String str){
 		
 	}return str;
 	
+}
+private static HTTPResponse getResponse(String url,String payload, String cookieStr,HTTPMethod httpMethod, HTTPResponse prevoiusResponse) throws IOException {
+	  URLFetchService service=URLFetchServiceFactory.getURLFetchService();
+	  URL uri=new URL(url);
+	  HTTPRequest request=new HTTPRequest(uri,httpMethod,FetchOptions.Builder.doNotFollowRedirects().setDeadline(60.0));
+	  
+	  if(prevoiusResponse!=null){
+	  for(HTTPHeader h:prevoiusResponse.getHeaders()){
+		  
+		  if(!h.getName().equalsIgnoreCase("Set-Cookie")){
+			 // request.addHeader(h);
+		  }
+		  
+	  }
+	  }
+	  //if(HTTPMethod.POST.equals(httpMethod)){
+	  //HTTPHeader header=new HTTPHeader("Content-Type","application/x-www-form-urlencoded");
+	  //request.setHeader(header);
+	  //}
+	 // header=new HTTPHeader("User-Agent","Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36");
+	//  request.setHeader(header);
+	  
+	  if(cookieStr!=null && !"".equals(cookieStr)){
+		  System.out.println("adding cookie to request : "+cookieStr);
+	  request.addHeader(new HTTPHeader("Cookie",cookieStr));
+	  }
+	 // String payload="grant_type=assertion&assertion_type=";
+	 // payload+="SignedJsonAssertionToken.GRANT_TYPE_VALUE";
+	 // payload+="&assertion=";
+	 // payload+=url;
+	  if(payload!=null && !"".equals(payload)){
+		  request.setPayload(payload.getBytes());
+	  }
+	  
+	  HTTPResponse response=service.fetch(request);
+	  //JsonParser parser=new JsonParser();
+	  //String token=parser.parse(new String(response.getContent())));//.getAsJsonObject().get("access_token").getAsString();
+	  String token=(new String(response.getContent()));
+	  
+	  System.out.println("=== *Response Payload Start*-1 ====");
+	  System.out.println(token.substring(0, token.length()>100?100:token.length()));
+	  System.out.println("=== Response Payload End====");
+	  return response;
+	}
+
+public static void refreshRemoteServer(String url) throws Exception{
+	System.out.println("Accessing remote srver call refreshRemoteServer");
+	int retryCnt=3;
+	try{
+	while(retryCnt>0){
+	System.out.println("Accessing remote srver: remaining try: "+retryCnt);
+	getResponse(url, "", "", HTTPMethod.GET,null);
+	break;
+	}
+	}catch(Exception e){
+		System.err.println("Error while accessing remote "+e.getMessage());
+		retryCnt--;
+		if(retryCnt==0){
+			System.err.println("Error while accessing remote failed\n Stoped further process "+e.getMessage());
+			throw new Exception(e);
+		}
+	}
 }
 
 }

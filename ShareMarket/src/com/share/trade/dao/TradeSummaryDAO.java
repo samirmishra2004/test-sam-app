@@ -12,6 +12,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 
+import com.share.trade.common.MethodUtil;
 import com.share.trade.common.PMF;
 import com.share.trade.database.Strategy;
 import com.share.trade.database.TradeSummary;
@@ -73,14 +74,22 @@ public class TradeSummaryDAO {
 		   return true;
 	}
 	
-	public LinkedList<TradeSummary> getTradeSummary(){
+	public LinkedList<TradeSummary> getTradeSummary(String filterScript){
 		PersistenceManager pm = PMF.getInstance().getPersistenceManager();
 		List<TradeSummary> ts=new ArrayList<TradeSummary>();
 		try{
 		
 		Query q=pm.newQuery(TradeSummary.class);		
+		Object result=null;
+		if(!MethodUtil.isEmpty(filterScript)){
+		q.setFilter("script == filterScript");		
+		q.declareParameters("String filterScript");
 		q.setOrdering("tradeDate desc");
-		Object result=q.execute();
+		 result=q.execute(filterScript);
+		}else{
+			q.setOrdering("tradeDate desc");
+			result=q.execute();	
+		}
 		if(result!=null)
 		ts=(List<TradeSummary>)result;
 		ts.size();

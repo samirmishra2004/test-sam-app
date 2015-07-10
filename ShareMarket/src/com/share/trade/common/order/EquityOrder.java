@@ -15,12 +15,12 @@ public class EquityOrder implements OrderInterface {
 	
 	public void placeOrder() throws Exception {
 		OrderUtil ou=OrderUtil.getInstance();
-		ou.placeOrder(this);		
+		ou.placeOrderService(this);		
 		
 	}
 	public void placeOrderManual() throws Exception {
 		OrderUtil ou=OrderUtil.getInstance();
-		ou.placeOrder(this);		
+		ou.placeOrderService(this);		
 		
 	}
 	

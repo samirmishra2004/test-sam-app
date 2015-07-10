@@ -57,9 +57,13 @@ public class TradeLong {
 		HOUR = time.get(Calendar.HOUR_OF_DAY);
 		MINUT = time.get(Calendar.MINUTE);
 		SECOND = time.get(Calendar.SECOND);
+		System.out.println("HOUR :"+HOUR+" MINUT :"+MINUT+" SECOND :"+SECOND);
 		String msg = "";
 		String tradeQuantity = sm.getTradeQuantity();
 		String scriptNameAndMonth = sm.getBroker_script();
+		System.out.println(">> isHighBeta :"+sm.getHighBeta());
+		boolean isHighBeta = sm.getHighBeta().equalsIgnoreCase("0")?false:true;
+		System.out.println(">> isHighBeta :"+isHighBeta);
 		String scriptName = "";
 		String expiryDateStr = "";
 		String token = "";
@@ -96,7 +100,7 @@ public class TradeLong {
 				isTime4Position = true;
 				if (HOUR == positonOpenB4Hour) {
 					isTime4Position = true;
-					if (!(positonOpenB4Minut <= MINUT)) {
+					if (!(positonOpenB4Minut >= MINUT)) {
 						isTime4Position = false;
 					}
 				} else {
@@ -113,23 +117,57 @@ public class TradeLong {
 			}
 		}
 		TradeWatcher stockWatchData = watcherBD.getWatchDataForScript(b);
+		
+		
 		if (stockWatchData != null) {
 
 		} else {
 			stockWatchData = watcherBD.addScriptToWatch(b);
 		}
+		
+		
 
-		isBuyAlerted = stockWatchData.isBuyAlerted();
+		isBuyAlerted = stockWatchData.isBuyAlerted();		
+		
 		bp = stockWatchData.getBuyPrice();
 		isSellAlerted = stockWatchData.isSellAlerted();
 
 		sp = stockWatchData.getSellPrice();
+		
+		
+		
 		// reset flag everyday
 		if (HOUR == 9 && MINUT <= 33 && isBuyAlerted && isSellAlerted) {
 			stockWatchData.setBuyAlerted(false);
 			stockWatchData.setSellAlerted(false);
 			watcherBD.updateWatchScript(stockWatchData);
+			ShareUtil.APP_CACHE.clear();
 		}
+		// A fix for data inconsistency
+		
+		//from cache
+		TradeWatcher stockWatchDataCache = null;
+		if(ShareUtil.APP_CACHE.containsKey(b+"_stockWatchData"))
+			stockWatchDataCache=(TradeWatcher)ShareUtil.APP_CACHE.get(b+"_stockWatchData");
+		
+		if(stockWatchDataCache!=null && ((stockWatchDataCache.isBuyAlerted() && !isBuyAlerted)||(stockWatchDataCache.isSellAlerted() && !isSellAlerted))){
+			
+			System.err.println("Error -------- Data Inconsitant ----getting from app cache---");
+			stockWatchData=stockWatchDataCache;
+			
+			isBuyAlerted = (stockWatchDataCache.isBuyAlerted() || isBuyAlerted) ;		
+			
+			bp = stockWatchDataCache.getBuyPrice();
+			isSellAlerted = (stockWatchDataCache.isSellAlerted() || isSellAlerted );
+
+			sp = stockWatchDataCache.getSellPrice();
+		}else if(stockWatchDataCache!=null){
+			System.out.println("stockWatchDataCache=== isBuyAlerted :"+stockWatchDataCache.isBuyAlerted());
+			System.out.println("stockWatchDataCache=== isSellAlerted :"+stockWatchDataCache.isSellAlerted());
+			System.out.println("stockWatchDataCache=== bp :"+stockWatchDataCache.getBuyPrice());
+			System.out.println("stockWatchDataCache=== sp :"+stockWatchDataCache.getSellPrice());
+		}
+		
 		dh = MethodUtil.roundOff(sb.getDayHigh());
 		cp = MethodUtil.roundOff(sb.getCurrentTradePrice());
 		cbp = MethodUtil.roundOff(sb.getCurrentBid());
@@ -238,6 +276,13 @@ public class TradeLong {
 								}
 							
 							}
+							String buyOrSell=null;
+							if(isHighBeta){
+								buyOrSell=ShareUtil.SORTSELL_ORDER;
+							}else{
+								buyOrSell=ShareUtil.BUY_ORDER;
+							}
+							
 							if(isFutureScript){
 								FutureOrder fo = new FutureOrder();
 								fo.setBuyOrSell(ShareUtil.BUY_ORDER);
@@ -252,7 +297,7 @@ public class TradeLong {
 							
 							if(isEquityScript){
 								EquityOrder eo = new EquityOrder();			
-								eo.setBuyOrSell(ShareUtil.BUY_ORDER);
+								eo.setBuyOrSell(buyOrSell);
 								eo.setLotSize(Long.parseLong(tradeQuantity));								
 								eo.setScriptName(scriptName);
 								if(stg.isTradeOnMarket()){
@@ -269,6 +314,7 @@ public class TradeLong {
 									.uiLog("<font color=red>Auto Trade: Error</font>"
 											+ b + " is signeled to buy @" + cap,
 											ShareUtil.ORDER);
+							throw new Exception("Failed to place order", e);
 						}
 
 						MethodUtil.uiLog(
@@ -298,6 +344,8 @@ public class TradeLong {
 						"24930840@way2sms.com",
 						msg + ":T" + HOUR + ":" + MINUT, "..");
 				mail.send();
+				
+				
 			}
 		}
 
@@ -384,6 +432,16 @@ public class TradeLong {
 					System.out.println("decreased considerabley since hooked price");
 					isSellable = true;
 				}
+				if(isHighBeta){//this condition is required to execute always 
+								//to exit the trade in case high beta is true(Reverse Trade)
+					MethodUtil.uiLog(
+							"Script " + b
+									+ " Its Stoploss trigger for High Beta Scrip"									
+									+ " cp - "+cp, ShareUtil.ORDER
+									);
+					System.out.println("Script " + b+"Its Stoploss trigger for High Beta Scrip");
+					isSellable = true;
+				}
 			} else if (cp < sp && hookPrice > 0) {// its decreasing after
 													// increase
 				System.out.println("its decreasing after hooking up");
@@ -391,7 +449,7 @@ public class TradeLong {
 			} else {
 				//stop loss logic
 				//if cp reduced 1 percent lower than bp triger stop loss
-				double slp=	bp - (bp*0.009);
+				double slp=	bp - (bp*0.006);
 				System.out.println("Stop loss price : "+slp);
 				if(cp<slp){
 					System.out.println("Stop los triggered...");
@@ -442,6 +500,12 @@ public class TradeLong {
 									isEquityScript=true;
 								}
 							}
+							String buyOrSell=null;
+							if(isHighBeta){
+								buyOrSell=ShareUtil.BUY_ORDER;
+							}else{
+								buyOrSell=ShareUtil.SELL_ORDER;
+							}
 							if(isFutureScript){
 								FutureOrder fo = new FutureOrder();
 								fo.setBuyOrSell(ShareUtil.SELL_ORDER);
@@ -454,7 +518,7 @@ public class TradeLong {
 							}
 							if(isEquityScript){
 								EquityOrder eo = new EquityOrder();			
-								eo.setBuyOrSell(ShareUtil.SELL_ORDER);
+								eo.setBuyOrSell(buyOrSell);// trade strategy
 								eo.setLotSize(Long.parseLong(tradeQuantity));								
 								eo.setScriptName(scriptName);
 								if(stg.isTradeOnMarket()){
@@ -470,6 +534,7 @@ public class TradeLong {
 											+ b
 											+ " is signeled to  squareoff sell @"
 											+ cbp, ShareUtil.ORDER);
+							throw new Exception("Failed to place order", e);
 						}
 
 						MethodUtil.uiLog(
@@ -500,7 +565,10 @@ public class TradeLong {
 						"24930840@way2sms.com",
 						msg + ":T" + HOUR + ":" + MINUT, "..");
 				mail.send();
+				
 			}
+			
+			
 		}
 
 		if (updateCommanData) {
@@ -517,7 +585,11 @@ public class TradeLong {
 		log.info("Updating stockWatchData for "+stockWatchData.getScriptName());
 		log.info("Updating stockWatchData isSellAlerted "+stockWatchData.isSellAlerted());
 		log.info("Updating stockWatchData isBuyAlerted "+stockWatchData.isBuyAlerted());
+		
+		//Fix: for data inconsistency
+		ShareUtil.APP_CACHE.put(b+"_stockWatchData", stockWatchData);//keep it in a cache
 		watcherBD.updateWatchScript(stockWatchData);
-
+		
+		
 	}
 }

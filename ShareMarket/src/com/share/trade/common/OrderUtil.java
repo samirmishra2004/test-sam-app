@@ -1136,7 +1136,7 @@ public class OrderUtil {
 	private HTTPResponse getResponse(String url,String payload, String cookieStr,HTTPMethod httpMethod, HTTPResponse prevoiusResponse) throws IOException {
 		  URLFetchService service=URLFetchServiceFactory.getURLFetchService();
 		  URL uri=new URL(url);
-		  HTTPRequest request=new HTTPRequest(uri,httpMethod,FetchOptions.Builder.doNotFollowRedirects().setDeadline(20.0));
+		  HTTPRequest request=new HTTPRequest(uri,httpMethod,FetchOptions.Builder.doNotFollowRedirects().setDeadline(60.0));
 		  
 		  if(prevoiusResponse!=null){
 		  for(HTTPHeader h:prevoiusResponse.getHeaders()){
@@ -1176,5 +1176,45 @@ public class OrderUtil {
 		  System.out.println("=== Response Payload End====");
 		  return response;
 		}
+	
+	// using openshif service url
+	public void placeOrderService(EquityOrder eo) throws IOException{
+		 final String url="http://dhanabriksh-samworld.rhcloud.com/trade";
+		try{
+		//List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+		HTTPResponse resp=null;
+				
+		System.out.println("======go to openshift ====");
+		
+		StringBuffer payLoad=new StringBuffer().
+				append(ShareUtil.trdUser+"="+usr)
+				.append("&"+ShareUtil.trdPwd+"="+pwd1)
+				.append("&"+ShareUtil.trdScriptId+"="+eo.getScriptName())
+				.append("&"+ShareUtil.trdQuantity+"="+eo.getLotSize()+"")
+				.append("&"+ShareUtil.trdBuyOrSell+"="+eo.getBuyOrSell())
+				.append("&"+ShareUtil.trdPrice+"=0");
+				
+		
+		 /*  nameValuePairs = new ArrayList<NameValuePair>();
+           nameValuePairs.add(new BasicNameValuePair("RP01", usr));
+           nameValuePairs.add(new BasicNameValuePair("RP02", pwd1));
+           nameValuePairs.add(new BasicNameValuePair("RP03", eo.getScriptName()));
+           
+           nameValuePairs.add(new BasicNameValuePair("RP04", eo.getLotSize()+""));
+           nameValuePairs.add(new BasicNameValuePair("RP06", eo.getBuyOrSell()));
+           nameValuePairs.add(new BasicNameValuePair("RP05", "0"));*/
+          
+		
+		
+		resp=getResponse(url, payLoad.toString(), "", HTTPMethod.POST,resp);
+		
+		}catch(Exception e){
+			System.err.println("Error: "+e.getMessage());
+			throw new IOException(e);
+		}
+	
+	}
+	
+	
 	
 }

@@ -4,7 +4,7 @@
   <cron>
     <url>/cronAction.do</url>
     <description>Refresh quote value every minute</description>
-    <schedule>every 3 minutes from 09:30 to 15:30</schedule>
+    <schedule>every 2 minutes from 09:30 to 15:30</schedule>
     <timezone>Asia/Kolkata</timezone>
     
   </cron>

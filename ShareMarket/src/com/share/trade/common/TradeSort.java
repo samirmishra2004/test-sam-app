@@ -59,9 +59,12 @@ public class TradeSort {
 		HOUR = time.get(Calendar.HOUR_OF_DAY);
 		MINUT = time.get(Calendar.MINUTE);
 		SECOND = time.get(Calendar.SECOND);
+		System.out.println("HOUR :"+HOUR+" MINUT :"+MINUT+" SECOND :"+SECOND);
 		String msg = "";
 		String tradeQuantity = sm.getTradeQuantity();
 		String scriptNameAndMonth = sm.getBroker_script();
+		boolean isHighBeta = sm.getHighBeta().equalsIgnoreCase("0")?false:true;
+		System.out.println(">> isHighBeta :"+isHighBeta);
 		String scriptName = "";
 		String expiryDateStr = "";
 		String token="";
@@ -97,7 +100,7 @@ public class TradeSort {
 				isTime4Position = true;
 				if (HOUR == positonOpenB4Hour) {
 					isTime4Position = true;
-					if (!(positonOpenB4Minut <= MINUT)) {
+					if (!(positonOpenB4Minut >= MINUT)) {
 						isTime4Position = false;
 					}
 				} else {
@@ -133,8 +136,35 @@ public class TradeSort {
 			stockWatchData.setBuyAlerted(false);
 			stockWatchData.setSellAlerted(false);
 			watcherBD.updateWatchScript(stockWatchData);
+			ShareUtil.APP_CACHE.clear();
 		}
+		// A fix for data inconsistency
+		
+		//from cache
+		TradeWatcher stockWatchDataCache = null;
+		if(ShareUtil.APP_CACHE.containsKey(b+"_stockWatchData"))
+			stockWatchDataCache=(TradeWatcher)ShareUtil.APP_CACHE.get(b+"_stockWatchData");
+		
+		if(stockWatchDataCache!=null && ((stockWatchDataCache.isBuyAlerted() && !isBuyAlerted)||(stockWatchDataCache.isSellAlerted() && !isSellAlerted))){
+			
+			System.err.println("Error -------- Data Inconsitant ----getting from app cache---");
+			stockWatchData=stockWatchDataCache;
+			isBuyAlerted = (stockWatchDataCache.isBuyAlerted() || isBuyAlerted);		
+			
+			bp = stockWatchDataCache.getBuyPrice();
+			isSellAlerted = (stockWatchDataCache.isSellAlerted()||isSellAlerted);
 
+			sp = stockWatchDataCache.getSellPrice();
+			
+		}else if(stockWatchDataCache!=null){
+			System.out.println("stockWatchDataCache=== isBuyAlerted :"+stockWatchDataCache.isBuyAlerted());
+			System.out.println("stockWatchDataCache=== isSellAlerted :"+stockWatchDataCache.isSellAlerted());
+			System.out.println("stockWatchDataCache=== bp :"+stockWatchDataCache.getBuyPrice());
+			System.out.println("stockWatchDataCache=== sp :"+stockWatchDataCache.getSellPrice());
+		}
+		
+		
+		
 		dh = MethodUtil.roundOff(sb.getDayHigh());
 		cp = MethodUtil.roundOff(sb.getCurrentTradePrice());
 		cbp = MethodUtil.roundOff(sb.getCurrentBid());
@@ -235,6 +265,12 @@ public class TradeSort {
 									isEquityScript=true;
 								}
 							}
+							String buyOrSell=null;
+							if(isHighBeta){
+								buyOrSell=ShareUtil.BUY_ORDER;
+							}else{
+								buyOrSell=ShareUtil.SORTSELL_ORDER;
+							}
 							if(isFutureScript){
 								FutureOrder fo = new FutureOrder();
 								fo.setBuyOrSell(ShareUtil.SELL_ORDER);
@@ -249,7 +285,7 @@ public class TradeSort {
 							
 							if(isEquityScript){
 								EquityOrder eo = new EquityOrder();			
-								eo.setBuyOrSell(ShareUtil.SORTSELL_ORDER);
+								eo.setBuyOrSell(buyOrSell);
 								eo.setLotSize(Long.parseLong(tradeQuantity));								
 								eo.setScriptName(scriptName);
 								
@@ -268,6 +304,7 @@ public class TradeSort {
 									"<font color=red>Auto Trade: Error</font>"
 											+ b + " is signeled to sell @"
 											+ cbp, ShareUtil.ORDER);
+							throw new Exception("Failed to place order", e);
 						}
 
 						MethodUtil.uiLog(
@@ -284,7 +321,7 @@ public class TradeSort {
 					log.info(b+ " is signeled to sell @" + cbp+
 								ShareUtil.ORDER);
 					stockWatchData.setSellAlerted(true);
-					// PLACE ORDER
+					// PLACE ORDER					
 				} else {
 					stockWatchData.setSellAlerted(false);
 					MethodUtil.uiLog("<font color=red>ERROR: </font>" + b
@@ -381,6 +418,16 @@ public class TradeSort {
 							+ " increase considerabley since hooked price (cp-hookPrice)" + (cp-hookPrice), ShareUtil.ORDER);
 					isByable = true;
 				}
+				if(isHighBeta){//this condition is required to execute always 
+					//to exit the trade in case high beta is true(Reverse Trade)
+					MethodUtil.uiLog(
+							"Script " + b
+									+ " Its Stoploss trigger for High Beta Scrip"									
+									+ " cp - "+cp, ShareUtil.ORDER
+									);
+					System.out.println("Script " + b+"Its Stoploss trigger for High Beta Scrip");
+					isByable = true;
+				}
 			} else if(cp>bp && hookPrice>0){// its increased after  decreasing
 				System.out.println("its increasing after hooking up");
 				MethodUtil.uiLog("SORT Squareoff : " + b
@@ -388,7 +435,7 @@ public class TradeSort {
 				isByable = true;
 			}else{
 				//stop loss logic
-				double slp = sp + (sp*0.009);
+				double slp = sp + (sp*0.006);
 				System.out.println("its stoploss price is "+slp);
 				if(cp>slp){
 				System.out.println("its stoploss is triggered ");
@@ -440,6 +487,12 @@ public class TradeSort {
 									isEquityScript=true;
 								}
 							}
+							String buyOrSell=null;
+							if(isHighBeta){
+								buyOrSell=ShareUtil.SELL_ORDER;
+							}else{
+								buyOrSell=ShareUtil.BUY_ORDER;
+							}
 							if(isFutureScript){
 								FutureOrder fo = new FutureOrder();
 								fo.setBuyOrSell(ShareUtil.BUY_ORDER);
@@ -453,7 +506,7 @@ public class TradeSort {
 							
 							if(isEquityScript){
 								EquityOrder eo = new EquityOrder();			
-								eo.setBuyOrSell(ShareUtil.BUY_ORDER);
+								eo.setBuyOrSell(buyOrSell);
 								eo.setLotSize(Long.parseLong(tradeQuantity));								
 								eo.setScriptName(scriptName);
 								if(stg.isTradeOnMarket()){
@@ -468,6 +521,7 @@ public class TradeSort {
 									"<font color=red>Auto Trade: Error</font>"
 											+ b + " is signeled to squareoff @"
 											+ cap, ShareUtil.ORDER);
+							throw new Exception("Failed to place order", e);
 						}
 
 						MethodUtil.uiLog(
@@ -491,7 +545,8 @@ public class TradeSort {
 				SendMail mail = new SendMail("samirmishra2004",
 						"24930840@way2sms.com",
 						msg + ":T" + HOUR + ":" + MINUT, "..");
-				mail.send();
+				mail.send();			
+				
 			}
 		}
 		if (updateCommanData) {
@@ -509,7 +564,10 @@ public class TradeSort {
 		log.info("Updating stockWatchData for "+stockWatchData.getScriptName());
 		log.info("Updating stockWatchData isSellAlerted "+stockWatchData.isSellAlerted());
 		log.info("Updating stockWatchData isBuyAlerted "+stockWatchData.isBuyAlerted());
+		//Fix: for data inconsistency
+		ShareUtil.APP_CACHE.put(b+"_stockWatchData", stockWatchData);
+		
 		watcherBD.updateWatchScript(stockWatchData);
-
+		
 	}
 }

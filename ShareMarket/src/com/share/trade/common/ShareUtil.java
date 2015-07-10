@@ -17,6 +17,7 @@ public static HashMap<String, Double> PRICE_CHANGE_INC_MAP=new HashMap<String, D
 public static HashMap<String, Double> PRICE_CHANGE_DEC_MAP=new HashMap<String, Double>();
 public static HashMap<String,Integer> PORTFOLIYO_SCRIPTS_COUNTER_MAP=new HashMap<String, Integer>();
 public static HashMap<String, HashMap<String, Object>> stockWatcherData=new HashMap<String,HashMap<String, Object>>();
+public static HashMap<String,  Object> APP_CACHE=new HashMap<String,Object>();
 public static HashMap<String, Double> hookPrice=new HashMap<String,Double>();
 
 public static String DEFAULTSTRATEGY="DEFAULTSTRATEGY";
@@ -52,4 +53,20 @@ public static double SORT_TRADE_SQ_HOOK_P=0.0;
 public static String OPEN_BUY_FAR="buyFarSellNear";
 public static String OPEN_SELL_FAR="sellFarBuyNear";
 public static String SQUREOFF="squareOff";
+
+//remote order service constant
+static final String trdUser="RP01";
+static final String trdPwd="RP02";
+static final String trdScriptId="RP03";
+static final String trdQuantity="RP04";
+static final String trdPrice="RP05";
+static final String trdBuyOrSell="RP06";
+
+static final String executeMethod="executeMethod";
+
+static final String executeTest="testConnection";
+static final String executeTrade="executeTrade";
+static final String connectionSuccess="ConnectionSuccess";
+
+
 }

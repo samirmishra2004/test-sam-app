@@ -25,6 +25,11 @@ function goBack(){
 	document.forms[0].action='/tradehome.do';
 	document.forms[0].submit();
 }
+function filter(script){
+	document.forms[0].method="post";
+	document.forms[0].action='/viewtradesumary.do?scriptName='+script;
+	document.forms[0].submit();
+}
 </script>
 </head>
 <body>
@@ -37,7 +42,16 @@ function goBack(){
 	<form method=post>
 
 		<table class="maintable" width="100%" border=1 height="100%">
-			<th align=center height="20%" colspan=5>Trade Summary</th>
+			<th>Script Name: 
+			<select name=scriptName onchange="filter(this.value)">
+			<option value=""></option>
+			<c:forEach var="scriptMaper" items="${scriptMaperList}" varStatus="loopStatus">			
+			<option value="${scriptMaper.wtcher_script}"
+			
+			<c:if test="${filterScript==scriptMaper.wtcher_script }"> selected </c:if>  >${scriptMaper.wtcher_script}-${scriptMaper.broker_script}</option>
+			</c:forEach>
+			</select>
+			</th><th align=center height="20%" colspan=4>Trade Summary</th>
 
 			<tr>
 				<th>MONTH</th>

@@ -24,6 +24,7 @@ public class ScriptMapperDAO {
 			s.setUpdatedDate(updatScripDTO.getUpdatedDate());
 			s.setWtcher_script(updatScripDTO.getWtcher_script());
 			s.setTradeQuantity(updatScripDTO.getTradeQuantity());
+			s.setHighBeta(updatScripDTO.getHighBeta());
 			
 		} finally {
 		    pm.close();

@@ -44,14 +44,17 @@ public class ScriptMapperController {
 		String watcherScript=request.getParameter("watcherScript");
 		String traderScript=request.getParameter("traderScript");
 		String tradeQuantity=request.getParameter("tradeQuantity");
+		
 		System.out.println("adding watcherScript: "+watcherScript);
 		//boolean isError=MethodUtil.checkAccountBalance(tradeQuantity);
 		
 		ScriptMapper mapperDTO=new ScriptMapper();
 		mapperDTO.setBroker_script(traderScript);
+		mapperDTO.setHighBeta("0");
 		mapperDTO.setIsActive("0");
 		mapperDTO.setWtcher_script(watcherScript);
 		mapperDTO.setTradeQuantity(tradeQuantity);
+		
 		mapperDTO.setUpdatedDate(new Date());
 		
 		mapperBD.addNewScript(mapperDTO);
@@ -66,6 +69,7 @@ public class ScriptMapperController {
 	public ModelAndView updateScript(HttpServletRequest request, HttpServletResponse response) throws Exception{
 		String watcherScript=request.getParameter("watcherScript");
 		String traderScript=request.getParameter("traderScript");
+		String highBeta=request.getParameter("highBeta");
 		String isActive=request.getParameter("activeChkBox");
 		String scriptId=request.getParameter("scriptId");
 		String tradeQuantity=request.getParameter("tradeQuantity");
@@ -73,6 +77,7 @@ public class ScriptMapperController {
 		ScriptMapper mapperDTO=new ScriptMapper();
 		mapperDTO.setKey(Long.parseLong(scriptId));
 		mapperDTO.setBroker_script(traderScript);
+		mapperDTO.setHighBeta(highBeta);
 		mapperDTO.setIsActive(isActive);
 		mapperDTO.setWtcher_script(watcherScript);
 		mapperDTO.setTradeQuantity(tradeQuantity);
