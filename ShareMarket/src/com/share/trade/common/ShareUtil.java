@@ -61,6 +61,7 @@ static final String trdScriptId="RP03";
 static final String trdQuantity="RP04";
 static final String trdPrice="RP05";
 static final String trdBuyOrSell="RP06";
+static final String isSqrOff="RP07";
 
 static final String executeMethod="executeMethod";
 

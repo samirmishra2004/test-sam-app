@@ -174,7 +174,14 @@ public class TradeSort {
 		log.info(b + " current price cp: " + cp + " cbp: " + cbp + " cap: "
 				+ cap + " buy not alerted: " + !isBuyAlerted);
 		log.info("sell aletred: " + isSellAlerted);
-		if (!isSellAlerted) {
+		boolean dataError=false;
+		if(!(cbp>10&&cap>10&&cp>10)){
+			dataError=true;
+			System.err.println("Fetched price not correct it seems...");
+		}
+		
+		
+		if (!isSellAlerted && !dataError) {
 			if (dl > pc) {
 				sp = (pc + (pc * (buyOrSellFactor)));
 			} else {
@@ -288,7 +295,7 @@ public class TradeSort {
 								eo.setBuyOrSell(buyOrSell);
 								eo.setLotSize(Long.parseLong(tradeQuantity));								
 								eo.setScriptName(scriptName);
-								
+								eo.setIsSquareOff("false");
 								if(stg.isTradeOnMarket()){
 									eo.setPrice(cbp);
 									}else{
@@ -509,10 +516,11 @@ public class TradeSort {
 								eo.setBuyOrSell(buyOrSell);
 								eo.setLotSize(Long.parseLong(tradeQuantity));								
 								eo.setScriptName(scriptName);
+								eo.setIsSquareOff("true");
 								if(stg.isTradeOnMarket()){
 								eo.setPrice(cap);
 								}else{
-									eo.setPrice(0);	
+									eo.setPrice(0);	//squre off at market rate
 								}
 								eo.placeOrder();
 							}

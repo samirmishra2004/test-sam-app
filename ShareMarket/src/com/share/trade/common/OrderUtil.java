@@ -1192,7 +1192,8 @@ public class OrderUtil {
 				.append("&"+ShareUtil.trdScriptId+"="+eo.getScriptName())
 				.append("&"+ShareUtil.trdQuantity+"="+eo.getLotSize()+"")
 				.append("&"+ShareUtil.trdBuyOrSell+"="+eo.getBuyOrSell())
-				.append("&"+ShareUtil.trdPrice+"=0");
+				.append("&"+ShareUtil.trdPrice+"="+eo.getPrice())
+				.append("&"+ShareUtil.isSqrOff+"="+eo.getIsSquareOff());
 				
 		
 		 /*  nameValuePairs = new ArrayList<NameValuePair>();
@@ -1215,6 +1216,21 @@ public class OrderUtil {
 	
 	}
 	
-	
+	public static void main(String[] args) {
+		EquityOrder eo = new EquityOrder();			
+		eo.setBuyOrSell("B");// trade strategy
+		eo.setLotSize(Long.parseLong("100"));								
+		eo.setScriptName("SAIL");
+		eo.setIsSquareOff("true");
+		
+			eo.setPrice(51.45);
+		OrderUtil ou=new OrderUtil();							
+		try {
+			ou.placeOrderService(eo);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 }

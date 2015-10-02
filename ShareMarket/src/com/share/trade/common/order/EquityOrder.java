@@ -12,7 +12,14 @@ public class EquityOrder implements OrderInterface {
 	private String buyOrSell;
 	double price;
 	String token;
+	String isSquareOff="";
 	
+	public String getIsSquareOff() {
+		return isSquareOff;
+	}
+	public void setIsSquareOff(String isSquareOff) {
+		this.isSquareOff = isSquareOff;
+	}
 	public void placeOrder() throws Exception {
 		OrderUtil ou=OrderUtil.getInstance();
 		ou.placeOrderService(this);		

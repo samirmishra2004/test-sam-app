@@ -92,15 +92,24 @@ public class BrokerController {
 			
 			System.out.println("isEquityScript: "+isEquityScript);
 			if(isEquityScript){
-				EquityOrder eo = new EquityOrder();			
-				eo.setBuyOrSell(ShareUtil.BUY_ORDER);
+			EquityOrder eo = new EquityOrder();			
+				eo.setBuyOrSell(buyOrSell);
 				eo.setLotSize(Long.parseLong(tradeQuantity));								
 				eo.setScriptName(scriptName);
 				//if(stg.isTradeOnMarket()){
 					eo.setPrice(0);
 				//	}else{
 				//		eo.setPrice(0);	
-				//	}								
+				//	}			
+				 
+				/*EquityOrder eo = new EquityOrder();			
+				eo.setBuyOrSell("B");// trade strategy
+				eo.setLotSize(Long.parseLong("100"));
+				//eo.setPrice("")
+				eo.setScriptName("SAIL");
+				eo.setIsSquareOff("true");
+				
+					eo.setPrice(51.45);	*/ 
 				eo.placeOrderManual();
 			}	
 		if(isFutureScript)	{

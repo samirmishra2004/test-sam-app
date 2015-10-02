@@ -1,5 +1,6 @@
 package com.share.trade.controller;
 
+import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -86,7 +87,8 @@ public class CronAction{
 			futureGapTradeBD.getMappedScript();
 			System.out.println("=========Gap update End =======");
 		}else
-		
+		try{
+		MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/");
 		if(ShareUtil.WATCHER_SCRIPT_SET.size()>0){
 			
 			for(String b:ShareUtil.WATCHER_SCRIPT_SET){
@@ -111,7 +113,9 @@ public class CronAction{
 				
 			}
 		}
-		
+		}catch (Exception e) {
+			e.printStackTrace(new PrintWriter(System.out));
+		}
 		}
 		return new ModelAndView("incorrectUrl");
 		
