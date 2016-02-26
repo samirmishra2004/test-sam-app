@@ -57,7 +57,7 @@ public class CronAction{
 		Strategy strategy=strategyBD.getStrategy(ShareUtil.DEFAULTSTRATEGY);
 		ScriptMapper scriptMapper=null;
 		
-		if(HOUR == 9 && MINUT <=33){
+		if(HOUR == 9 && MINUT <=17){
 		System.out.println("Clear the log");
 		MethodUtil.clearLog("");
 		//reset static values
@@ -87,8 +87,9 @@ public class CronAction{
 			futureGapTradeBD.getMappedScript();
 			System.out.println("=========Gap update End =======");
 		}else
-		try{
-		MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/");
+		try{			
+			ShareUtil.REMOTE_SERVER_CALL_CNT=0;
+		//MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/");
 		if(ShareUtil.WATCHER_SCRIPT_SET.size()>0){
 			
 			for(String b:ShareUtil.WATCHER_SCRIPT_SET){
@@ -114,7 +115,7 @@ public class CronAction{
 			}
 		}
 		}catch (Exception e) {
-			e.printStackTrace(new PrintWriter(System.out));
+			System.err.println("Error: "+e.getMessage()+"\n"+e);
 		}
 		}
 		return new ModelAndView("incorrectUrl");

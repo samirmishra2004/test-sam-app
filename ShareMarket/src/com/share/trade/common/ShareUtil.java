@@ -39,6 +39,7 @@ public static String BUY_ORDER="B";
 public static String SELL_ORDER="S";
 public static String SORTSELL_ORDER="SS";
 public static String ORDER="ORDER";
+public static int REMOTE_SERVER_CALL_CNT=0;
 public static HashMap<String, String> sentiment=new HashMap<String, String>();
 static{
 	sentiment.put("BULISH",BULISH);

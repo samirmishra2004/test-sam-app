@@ -49,6 +49,7 @@ public class TradeLong {
 	boolean updateWatcher = true;
 	TradeWatcherBD watcherBD = new TradeWatcherBD();
 	TradeSummaryBD tradeSummaryBD = new TradeSummaryBD();
+	
 
 	public synchronized void watch(ShareBean sb, String b, Strategy stg,
 			ScriptMapper sm, boolean updateCommanData) throws Exception {
@@ -137,7 +138,7 @@ public class TradeLong {
 		
 		
 		// reset flag everyday
-		if (HOUR == 9 && MINUT <= 33 && isBuyAlerted && isSellAlerted) {
+		if (HOUR == 9 && MINUT <= 18 && isBuyAlerted && isSellAlerted) {
 			stockWatchData.setBuyAlerted(false);
 			stockWatchData.setSellAlerted(false);
 			watcherBD.updateWatchScript(stockWatchData);
@@ -173,6 +174,7 @@ public class TradeLong {
 		cbp = MethodUtil.roundOff(sb.getCurrentBid());
 		cap = MethodUtil.roundOff(sb.getCurrentAsk());
 		pc = MethodUtil.roundOff(sb.getPreviousClose());
+		dl=	MethodUtil.roundOff(sb.getDayLow());
 		log.info(b + " current price cp: " + cp + " cbp: " + cbp + " cap: "
 				+ cap + " buy not alerted: " + !isBuyAlerted);
 		log.info("sell aletred: " + isSellAlerted);
@@ -181,7 +183,11 @@ public class TradeLong {
 			dataError=true;
 			System.err.println("Fetched price not correct it seems...");
 		}
-		if (!isBuyAlerted && !dataError) {
+		if (!isBuyAlerted && !isSellAlerted && !dataError) {
+			if(ShareUtil.REMOTE_SERVER_CALL_CNT==0){
+			MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/check.jsp");
+			ShareUtil.REMOTE_SERVER_CALL_CNT++;
+			}
 			if (pc > dh) {
 				bp = (pc - (pc * (buyOrSellFactor)));
 			} else {
@@ -201,7 +207,7 @@ public class TradeLong {
 			double oldPrice = stockWatchData.getCurrentPrice1();
 			double lastPrice = stockWatchData.getCurrentPrice2();
 			double considerableIncrease = oldPrice * increaseDecreaseFactor;
-
+			boolean dayLowAchieved=false;
 			if (considerableIncrease < 0.05) {
 				considerableIncrease = 0.05;// 5 paise
 			}
@@ -210,10 +216,63 @@ public class TradeLong {
 			System.out.println("current ask price " + cap);
 			System.out.println("current buy price " + bp);
 			System.out.println("current old price price " + oldPrice);
-			System.out.println("(cap < bp) && (cap > oldPrice) "
-					+ ((cap < bp) && (cap > oldPrice)));
-
-			if (cap > 0 && (cap < bp) && (cap > oldPrice)) {
+			System.out.println("(cap < bp) && (cap > lastPrice) "
+					+ ((cap < bp) && (cap > lastPrice)));
+			
+			if (cap > 0 && (cap < bp)){
+				try {
+					
+					ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE");
+					double dl_old=ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_OLD_DAY_LOW");
+					System.out.println("Old day low ##### "+dl_old);
+					if(dl_old==0.0){
+						throw new NullPointerException("day low 0");
+					}
+					
+					if(dl<dl_old){
+						dayLowAchieved=false;
+						ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_OLD_DAY_LOW",dl);
+						System.out.println(b+"_OLD_DAY_LOW= "+ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_OLD_DAY_LOW"));
+					}else {
+						dayLowAchieved=true;
+					}
+					System.out.println("dayLowAchieved ##### "+dayLowAchieved);
+					if((cap > lastPrice)){/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
+						System.out.println("before buying determine stoploss price");
+						double stoplossTemp=(cap-(cap*0.003));
+						if(dl<stoplossTemp){
+							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
+						}else{
+							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",dl);
+						}
+						
+						System.out.println("Stoploss is set to: "+ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE"));
+					}
+					
+				} catch (NullPointerException nullEx) {
+					System.out.println("Stoploss is not set "+nullEx.getMessage());
+					
+					ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_OLD_DAY_LOW",dl);
+					
+					System.out.println("OLD_DAY_LOW is now set for "+b+"_OLD_DAY_LOW: " +ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_OLD_DAY_LOW"));
+					
+					if((cap > lastPrice)){/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
+						System.out.println("before buying determine stoploss price");
+						double stoplossTemp=(cap-(cap*0.003));
+						if((dl-(dl*0.002))<stoplossTemp){
+							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
+						}else{
+							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",(dl-(dl*0.002)));
+						}
+						
+						System.out.println("Stoploss is set to: "+b+"_STOP_LOSS_PRICE = "+ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE"));
+					}
+				}
+			}
+			
+			
+			
+			if (cap > 0 && (cap < bp) && (cap > lastPrice) && dayLowAchieved) {
 
 				updateWatcher = false;
 
@@ -221,6 +280,7 @@ public class TradeLong {
 				// =====================
 				try {
 					increasedBy = ShareUtil.PRICE_CHANGE_INC_MAP.get(b);
+					
 				} catch (NullPointerException nullEx) {
 					ShareUtil.PRICE_CHANGE_INC_MAP.put(b, 0.00);
 				}
@@ -234,7 +294,7 @@ public class TradeLong {
 				ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
 				// =====================
 
-				if (increasedBy > 0) {
+				if (increasedBy > 0.06) {
 					isByable = true;
 					increasedBy = 0.0;// reset
 					ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
@@ -356,6 +416,10 @@ public class TradeLong {
 		}
 
 		if (!isSellAlerted && isBuyAlerted) {
+			if(ShareUtil.REMOTE_SERVER_CALL_CNT==0){
+				MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/check.jsp");
+				ShareUtil.REMOTE_SERVER_CALL_CNT++;
+			 }
 			// if(true){
 			sp = (bp + (bp * (profitFactor)));
 			sp = MethodUtil.roundOff(sp);
@@ -380,8 +444,9 @@ public class TradeLong {
 			System.out.println("current hookPrice price " + hookPrice);
 			System.out.println("current bid price " + cbp);
 			System.out.println("current sell price " + sp);
+			System.out.println("current lastPrice " + lastPrice);
 			System.out.println("current old price price " + oldPrice);
-			System.out.println("(cp < oldPrice) " + ((cp < oldPrice)));
+			System.out.println("(cp < lastPrice) " + ((cp < lastPrice)));
 			if ((cbp > sp)) {
 				// =====================
 				try {
@@ -437,6 +502,16 @@ public class TradeLong {
 									);
 					System.out.println("decreased considerabley since hooked price");
 					isSellable = true;
+				}else if(hookPrice>0&&(oldPrice>cp)){
+					MethodUtil.uiLog(
+							"Script " + b
+									+ " decreased considerabley since hooked price"
+									+ "considerableChange- "+considerableChange
+									+ "hookPrice- "+hookPrice+" cp- "+cp, ShareUtil.ORDER
+									+ "oldPrice- "+oldPrice
+									);
+					System.out.println("decreased considerabley since hooked price");
+					isSellable = true;
 				}
 				if(isHighBeta){//this condition is required to execute always 
 								//to exit the trade in case high beta is true(Reverse Trade)
@@ -454,10 +529,18 @@ public class TradeLong {
 				isSellable = true;
 			} else {
 				//stop loss logic
-				//if cp reduced 1 percent lower than bp triger stop loss
-				double slp=	bp - (bp*0.006);
+				//if cp reduced .2 percent lower than bp triger stop loss
+				double slp=	bp - (bp*0.003);
 				System.out.println("Stop loss price : "+slp);
-				if(cp<slp){
+				try{
+				if(ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE")>0){
+					slp=ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE");	
+					System.out.println("overwriting Stop loss price from map : "+slp);
+				}}catch(NullPointerException ex){
+					System.out.println("could not get Stop loss price from map : "+slp);
+				}
+				
+				if(cp<=slp){
 					System.out.println("Stop los triggered...");
 					isSellable = true;
 				}else{
@@ -529,7 +612,7 @@ public class TradeLong {
 								eo.setScriptName(scriptName);
 								eo.setIsSquareOff("true");
 								if(stg.isTradeOnMarket()){
-									eo.setPrice(cbp);
+									eo.setPrice(0); //squareoff at market
 								}else{
 										eo.setPrice(0);	//squareoff at market rate
 								}								

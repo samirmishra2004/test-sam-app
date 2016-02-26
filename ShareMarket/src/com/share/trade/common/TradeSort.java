@@ -132,7 +132,7 @@ public class TradeSort {
 
 		sp = stockWatchData.getSellPrice();
 		// reset flag everyday
-		if (HOUR == 9 && MINUT <= 33 && isBuyAlerted && isSellAlerted) {
+		if (HOUR == 9 && MINUT <= 18 && isBuyAlerted && isSellAlerted) {
 			stockWatchData.setBuyAlerted(false);
 			stockWatchData.setSellAlerted(false);
 			watcherBD.updateWatchScript(stockWatchData);
@@ -181,7 +181,11 @@ public class TradeSort {
 		}
 		
 		
-		if (!isSellAlerted && !dataError) {
+		if (!isSellAlerted && !isBuyAlerted && !dataError) {
+			if(ShareUtil.REMOTE_SERVER_CALL_CNT==0){
+				MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/check.jsp");
+				ShareUtil.REMOTE_SERVER_CALL_CNT++;
+				}
 			if (dl > pc) {
 				sp = (pc + (pc * (buyOrSellFactor)));
 			} else {
@@ -201,7 +205,8 @@ public class TradeSort {
 			double latPrice = stockWatchData.getCurrentPrice2();
 			System.out.println("CMP1 " + oldPrice + "CMP2 " + latPrice);
 			double considerableDecrease = oldPrice * increaseDecreaseFactor;
-
+			boolean dayHighAchieved=false;
+			
 			ShareUtil.PRICE_CHANGE_DEC_MAP.put(b, decreadedBy);
 
 			if (considerableDecrease < 0.05) {
@@ -209,7 +214,55 @@ public class TradeSort {
 			}
 
 			// oldPrice=MethodUtil.roundOff(oldPrice-considerableIncrease);
-			if (cbp>0 && (cbp > sp) && (cbp < oldPrice)) {
+			if (cbp>0 && (cbp > sp)){
+				try{
+
+					ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE");
+					double dh_old=ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_OLD_DAY_HIGH");
+					if(dh_old==0.0){
+						throw new NullPointerException();
+					}
+					System.out.println("Old day high ##### "+dh_old);
+					if(dh>dh_old){
+						dayHighAchieved=false;
+						ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_OLD_DAY_HIGH",dh);
+					}else{
+						dayHighAchieved=true;
+					}
+					System.out.println("dayHighAchieved ##### "+dayHighAchieved);
+					
+					if(cbp < latPrice){
+						/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
+						System.out.println("before buying determine stoploss price");
+						double stoplossTemp=(cbp+(cbp*0.003));
+						if(dh>stoplossTemp){
+							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
+						}else{
+							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",dh);
+						}
+						
+						System.out.println("Stoploss is set to: "+ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE"));
+					}
+				}catch (NullPointerException nullEx) {
+					System.out.println("Stoploss is not set");
+					ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_OLD_DAY_HIGH",dh);
+					if(cbp < latPrice){
+						/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
+						System.out.println("before buying determine stoploss price");
+						double stoplossTemp=(cbp+(cbp*0.003));
+						if((dh+(dh*0.002))>stoplossTemp){
+							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
+						}else{
+							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",(dh+(dh*0.002)));
+						}
+						
+						System.out.println("Stoploss is set to: "+ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE"));
+					}
+				}
+				
+			}
+			
+			if (cbp>0 && (cbp > sp) && (cbp < latPrice) && dayHighAchieved) {
 				// ===================
 				// adding up total increase decrease
 				try {
@@ -223,7 +276,7 @@ public class TradeSort {
 					decreadedBy = 0;
 				}
 				// ===================
-				if (decreadedBy >0) {
+				if (decreadedBy >0.06) {
 					isSellable = true;
 					decreadedBy = 0;
 					ShareUtil.PRICE_CHANGE_DEC_MAP.put(b, decreadedBy);
@@ -353,6 +406,10 @@ public class TradeSort {
 			}
 		}
 		if (isSellAlerted && !isBuyAlerted) {
+			if(ShareUtil.REMOTE_SERVER_CALL_CNT==0){
+				MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/check.jsp");
+				ShareUtil.REMOTE_SERVER_CALL_CNT++;
+			}
 			bp = (sp - (sp * (profitFactor)));
 			bp = MethodUtil.roundOff(bp);
 			log.info(b + " CP = " + cp + " BP=" + bp + " cap=" + cap + " cbp="
@@ -388,7 +445,7 @@ public class TradeSort {
 				try{
 					 hookPrice=ShareUtil.hookPrice.get(b);
 					if(cp<hookPrice){
-						ShareUtil.hookPrice.put(b, cp);
+						ShareUtil.hookPrice.put(b, cp); 
 					}
 					
 				}catch(NullPointerException npe){
@@ -425,6 +482,12 @@ public class TradeSort {
 							+ " increase considerabley since hooked price (cp-hookPrice)" + (cp-hookPrice), ShareUtil.ORDER);
 					isByable = true;
 				}
+				else if(hookPrice>0&&(cp>oldPrice)){//Reached to max profit.
+					System.out.println("increase considerabley since hooked price");
+					MethodUtil.uiLog("SORT Squareoff : " + b
+							+ " increase considerabley since hooked price (cp>oldPrice)" + (cp>oldPrice), ShareUtil.ORDER);
+					isByable = true;
+				}
 				if(isHighBeta){//this condition is required to execute always 
 					//to exit the trade in case high beta is true(Reverse Trade)
 					MethodUtil.uiLog(
@@ -442,9 +505,17 @@ public class TradeSort {
 				isByable = true;
 			}else{
 				//stop loss logic
-				double slp = sp + (sp*0.006);
+				double slp = sp + (sp*0.003);
 				System.out.println("its stoploss price is "+slp);
-				if(cp>slp){
+				try{
+				if(ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE")>0){
+					slp=ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE");
+					System.out.println("overwriting Stop price from map "+slp);
+				}}catch(NullPointerException ex){
+					System.out.println("Could not get Stop price from map");
+				}
+				//System.out.println("its stoploss price is "+slp);
+				if(cp>=slp){
 				System.out.println("its stoploss is triggered ");
 				MethodUtil.uiLog("SORT Squareoff : " + b
 						+ "its stoploss is triggered slp: " + slp+ "cp: "+cp, ShareUtil.ORDER);
@@ -518,7 +589,7 @@ public class TradeSort {
 								eo.setScriptName(scriptName);
 								eo.setIsSquareOff("true");
 								if(stg.isTradeOnMarket()){
-								eo.setPrice(cap);
+								eo.setPrice(0); //squareoff at market
 								}else{
 									eo.setPrice(0);	//squre off at market rate
 								}
