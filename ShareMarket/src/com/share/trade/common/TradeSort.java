@@ -70,6 +70,8 @@ public class TradeSort {
 		String token="";
 		boolean isEquityScript=false;
 		boolean isFutureScript=false;
+		
+		double stopLossFrctn=0.004;
 
 		if (stg.getBuyFactor() != null && !"".equals(stg.getBuyFactor())) {
 			buyOrSellFactor = Double.parseDouble(stg.getBuyFactor());
@@ -177,6 +179,11 @@ public class TradeSort {
 		boolean dataError=false;
 		if(!(cbp>10&&cap>10&&cp>10)){
 			dataError=true;
+			MethodUtil
+			.uiLog("<font color=red>Error fetching current price: </font>"
+					+ b
+					+ "@"
+					+ cbp, ShareUtil.ORDER);
 			System.err.println("Fetched price not correct it seems...");
 		}
 		
@@ -234,12 +241,12 @@ public class TradeSort {
 					if(cbp < latPrice){
 						/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
 						System.out.println("before buying determine stoploss price");
-						double stoplossTemp=(cbp+(cbp*0.003));
-						if(dh>stoplossTemp){
+						double stoplossTemp=(cbp+(cbp*stopLossFrctn));
+						//if(dh>stoplossTemp){
 							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
-						}else{
-							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",dh);
-						}
+						//}else{
+						//	ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",dh);
+						//}
 						
 						System.out.println("Stoploss is set to: "+ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE"));
 					}
@@ -249,12 +256,12 @@ public class TradeSort {
 					if(cbp < latPrice){
 						/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
 						System.out.println("before buying determine stoploss price");
-						double stoplossTemp=(cbp+(cbp*0.003));
-						if((dh+(dh*0.002))>stoplossTemp){
+						double stoplossTemp=(cbp+(cbp*stopLossFrctn));
+						//if((dh+(dh*0.002))>stoplossTemp){
 							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
-						}else{
-							ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",(dh+(dh*0.002)));
-						}
+						//}else{
+						//	ShareUtil.PRICE_CHANGE_DEC_MAP.put(b+"_STOP_LOSS_PRICE",(dh+(dh*0.002)));
+						//}
 						
 						System.out.println("Stoploss is set to: "+ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE"));
 					}
@@ -275,6 +282,8 @@ public class TradeSort {
 				if (decreadedBy < 0) {
 					decreadedBy = 0;
 				}
+				System.out.println("PC,  OP,  DH,  DL,  CP,  BP,  SP");
+				System.out.println(pc+",  "+"NA"+",  "+dh+",  "+dl+",  "+cp+",  "+bp+",  "+sp);
 				// ===================
 				if (decreadedBy >0.06) {
 					isSellable = true;
@@ -383,7 +392,8 @@ public class TradeSort {
 					stockWatchData.setSellAlerted(true);
 					// PLACE ORDER					
 				} else {
-					stockWatchData.setSellAlerted(false);
+					stockWatchData.setSellAlerted(true);
+					stockWatchData.setBuyAlerted(true);
 					MethodUtil.uiLog("<font color=red>ERROR: </font>" + b
 							+ " Insufficiant Account Balance", ShareUtil.SORT);
 					MethodUtil.uiLog("<font color=green>Order: </font>" + b
@@ -402,10 +412,10 @@ public class TradeSort {
 				SendMail mail = new SendMail("samirmishra2004",
 						"24930840@way2sms.com",
 						msg + ":T" + HOUR + ":" + MINUT, "..");
-				mail.send();
+				//mail.send();
 			}
 		}
-		if (isSellAlerted && !isBuyAlerted) {
+		if (isSellAlerted && !isBuyAlerted ) {
 			if(ShareUtil.REMOTE_SERVER_CALL_CNT==0){
 				MethodUtil.refreshRemoteServer("http://dhanabriksh-samworld.rhcloud.com/check.jsp");
 				ShareUtil.REMOTE_SERVER_CALL_CNT++;
@@ -440,6 +450,7 @@ public class TradeSort {
 			System.out.println("current old price price " + oldPrice);
 			System.out.println("(cap < bp)"
 					+ ((cap < bp)));
+		if(!dataError){
 			if ((cap < bp)) {
 				// ============
 				try{
@@ -505,7 +516,7 @@ public class TradeSort {
 				isByable = true;
 			}else{
 				//stop loss logic
-				double slp = sp + (sp*0.003);
+				double slp = sp + (sp*stopLossFrctn);
 				System.out.println("its stoploss price is "+slp);
 				try{
 				if(ShareUtil.PRICE_CHANGE_DEC_MAP.get(b+"_STOP_LOSS_PRICE")>0){
@@ -524,7 +535,7 @@ public class TradeSort {
 					isByable = false;
 				}
 			}
-			
+		}
 			if (forceSquareOff && istime4SquareOff) {
 				isByable = true;
 			}
@@ -624,7 +635,7 @@ public class TradeSort {
 				SendMail mail = new SendMail("samirmishra2004",
 						"24930840@way2sms.com",
 						msg + ":T" + HOUR + ":" + MINUT, "..");
-				mail.send();			
+				//mail.send();			
 				
 			}
 		}

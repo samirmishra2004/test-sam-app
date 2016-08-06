@@ -72,6 +72,8 @@ public class TradeLong {
 		boolean isEquityScript=false;
 		boolean isFutureScript=false;
 		
+		double stopLossFrctn=0.004;
+		
 		if (stg.getBuyFactor() != null && !"".equals(stg.getBuyFactor())) {
 			buyOrSellFactor = Double.parseDouble(stg.getBuyFactor());
 		}
@@ -181,6 +183,11 @@ public class TradeLong {
 		boolean dataError=false;
 		if(!(cbp>10&&cap>10&&cp>10)){
 			dataError=true;
+			MethodUtil
+			.uiLog("<font color=red>Error fetching current price: </font>"
+					+ b
+					+ "@"
+					+ cbp, ShareUtil.ORDER);
 			System.err.println("Fetched price not correct it seems...");
 		}
 		if (!isBuyAlerted && !isSellAlerted && !dataError) {
@@ -239,12 +246,12 @@ public class TradeLong {
 					System.out.println("dayLowAchieved ##### "+dayLowAchieved);
 					if((cap > lastPrice)){/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
 						System.out.println("before buying determine stoploss price");
-						double stoplossTemp=(cap-(cap*0.003));
-						if(dl<stoplossTemp){
+						double stoplossTemp=(cap-(cap*stopLossFrctn));
+						//if(dl<stoplossTemp){
 							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
-						}else{
-							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",dl);
-						}
+						//}else{
+							//ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",dl);
+						//}
 						
 						System.out.println("Stoploss is set to: "+ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE"));
 					}
@@ -258,12 +265,12 @@ public class TradeLong {
 					
 					if((cap > lastPrice)){/*This condition will make sure buyAlerted and hence once buyAlerted is set it wont alter the value next run*/
 						System.out.println("before buying determine stoploss price");
-						double stoplossTemp=(cap-(cap*0.003));
-						if((dl-(dl*0.002))<stoplossTemp){
+						double stoplossTemp=(cap-(cap*stopLossFrctn));
+						//if((dl-(dl*0.002))<stoplossTemp){
 							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",stoplossTemp);
-						}else{
-							ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",(dl-(dl*0.002)));
-						}
+						//}else{
+						//	ShareUtil.PRICE_CHANGE_INC_MAP.put(b+"_STOP_LOSS_PRICE",(dl-(dl*0.002)));
+						//}
 						
 						System.out.println("Stoploss is set to: "+b+"_STOP_LOSS_PRICE = "+ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE"));
 					}
@@ -292,6 +299,8 @@ public class TradeLong {
 				}
 
 				ShareUtil.PRICE_CHANGE_INC_MAP.put(b, increasedBy);
+				System.out.println("PC,  OP,  DH,  DL,  CP,  BP,  SP");
+				System.out.println(pc+",  "+"NA"+",  "+dh+",  "+dl+",  "+cp+",  "+bp+",  "+sp);
 				// =====================
 
 				if (increasedBy > 0.06) {
@@ -396,7 +405,8 @@ public class TradeLong {
 					}
 					stockWatchData.setBuyAlerted(true);
 				} else {
-					stockWatchData.setBuyAlerted(false);
+					stockWatchData.setBuyAlerted(true);
+					stockWatchData.setSellAlerted(true);
 					MethodUtil.uiLog("<font color=red>ERROR: </font>" + b
 							+ " Insufficiant Account Balance", ShareUtil.LONG);
 				}
@@ -409,7 +419,7 @@ public class TradeLong {
 				SendMail mail = new SendMail("samirmishra2004",
 						"24930840@way2sms.com",
 						msg + ":T" + HOUR + ":" + MINUT, "..");
-				mail.send();
+				//mail.send();
 				
 				
 			}
@@ -447,6 +457,7 @@ public class TradeLong {
 			System.out.println("current lastPrice " + lastPrice);
 			System.out.println("current old price price " + oldPrice);
 			System.out.println("(cp < lastPrice) " + ((cp < lastPrice)));
+			if(!dataError){
 			if ((cbp > sp)) {
 				// =====================
 				try {
@@ -530,7 +541,7 @@ public class TradeLong {
 			} else {
 				//stop loss logic
 				//if cp reduced .2 percent lower than bp triger stop loss
-				double slp=	bp - (bp*0.003);
+				double slp=	bp - (bp*stopLossFrctn);
 				System.out.println("Stop loss price : "+slp);
 				try{
 				if(ShareUtil.PRICE_CHANGE_INC_MAP.get(b+"_STOP_LOSS_PRICE")>0){
@@ -548,7 +559,7 @@ public class TradeLong {
 				isSellable = false;
 				}
 			}
-
+			}
 			if (forceSquareOff && istime4SquareOff) {
 				isSellable = true;
 			}
@@ -654,7 +665,7 @@ public class TradeLong {
 				SendMail mail = new SendMail("samirmishra2004",
 						"24930840@way2sms.com",
 						msg + ":T" + HOUR + ":" + MINUT, "..");
-				mail.send();
+				//mail.send();
 				
 			}
 			

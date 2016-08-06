@@ -97,21 +97,37 @@ public class CronAction{
 				ShareBean shareBean=homeBD.getRealTimeFinanceData(b,0);
 				ScriptMapper sm=mapperBD.getMappedScriptByScriptName(b);
 				System.out.println("broker script : "+sm.getBroker_script());
-				if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())&&
-						!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
-					updateWatcherPrice=false;
-				}
-				if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())){
-					System.out.println("=========Sorting =======");
-					watchSort.watch(shareBean, b,strategy,sm,updateWatcherPrice);
-					updateWatcherPrice=true;//update at last
-				}
-				if(!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
-					System.out.println("=========Long trade =======");
-					watchLong.watch(shareBean, b,strategy,sm,updateWatcherPrice);
-				}
+				String longFirstOrShort=MethodUtil.decideLongFirstOrSort(shareBean);
 				
+				if(ShareUtil.LONG.equals(longFirstOrShort)){
+					System.out.println("*****LONG FIRST****");
+					/*if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())&&
+							!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
+						updateWatcherPrice=false;
+					}*//*Not required, as it is going to run for either LONG or SORT not for both*/
+					if(!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
+						System.out.println("=========Long trade =======");
+						watchLong.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+					}
+					/*if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())){
+						System.out.println("=========Sorting =======");
+						watchSort.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+						updateWatcherPrice=true;//update at last
+					}*/ 
+					
+				}else{				
+					
+					if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())){
+						System.out.println("=========Sorting =======");
+						watchSort.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+						updateWatcherPrice=true;//update at last
+					}
+					/*if(!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
+						System.out.println("=========Long trade =======");
+						watchLong.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+					}*/
 				
+				}
 			}
 		}
 		}catch (Exception e) {

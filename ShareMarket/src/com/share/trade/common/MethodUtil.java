@@ -27,6 +27,7 @@ import com.share.trade.dao.CommonDAO;
 import com.share.trade.dao.PortfoliyoDAO;
 import com.share.trade.database.ActivityLog;
 import com.share.trade.database.Strategy;
+import com.share.trade.vo.ShareBean;
 import com.share.trade.vo.ShareBucket;
 
 public class MethodUtil {
@@ -281,6 +282,33 @@ public static void refreshRemoteServer(String url) throws Exception{
 			throw new Exception(e);
 		}
 	}
+}
+
+public static String decideLongFirstOrSort(ShareBean sb){
+	
+	double dh = 0;
+	double dl = 0;
+	double cp = 0;
+	double bp = 0;
+	double sp = 0;
+	double pc = 0;
+	double cbp = 0;
+	double cap = 0;
+	
+	dh = MethodUtil.roundOff(sb.getDayHigh());
+	cp = MethodUtil.roundOff(sb.getCurrentTradePrice());
+	cbp = MethodUtil.roundOff(sb.getCurrentBid());
+	cap = MethodUtil.roundOff(sb.getCurrentAsk());
+	dl = MethodUtil.roundOff(sb.getDayLow());
+	pc = MethodUtil.roundOff(sb.getPreviousClose());
+	
+	if((dh<pc)||(cp<pc)){
+		return ShareUtil.LONG;
+	}else{
+		return ShareUtil.SORT;
+	}
+	
+		
 }
 
 }
