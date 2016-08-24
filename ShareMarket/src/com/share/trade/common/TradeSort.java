@@ -179,11 +179,11 @@ public class TradeSort {
 		boolean dataError=false;
 		if(!(cbp>10&&cap>10&&cp>10)){
 			dataError=true;
-			MethodUtil
+			/*MethodUtil
 			.uiLog("<font color=red>Error fetching current price: </font>"
 					+ b
 					+ "@"
-					+ cbp, ShareUtil.ORDER);
+					+ cbp, ShareUtil.ORDER);*/
 			System.err.println("Fetched price not correct it seems...");
 		}
 		

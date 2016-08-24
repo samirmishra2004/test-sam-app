@@ -23,10 +23,12 @@ import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.share.trade.bd.FutureGapTradeBD;
 import com.share.trade.bd.ScriptMapperBD;
 import com.share.trade.bd.StrategyBD;
+import com.share.trade.bd.TradeWatcherBD;
 import com.share.trade.dao.CommonDAO;
 import com.share.trade.dao.PortfoliyoDAO;
 import com.share.trade.database.ActivityLog;
 import com.share.trade.database.Strategy;
+import com.share.trade.database.TradeWatcher;
 import com.share.trade.vo.ShareBean;
 import com.share.trade.vo.ShareBucket;
 
@@ -284,7 +286,7 @@ public static void refreshRemoteServer(String url) throws Exception{
 	}
 }
 
-public static String decideLongFirstOrSort(ShareBean sb){
+public static String decideLongFirstOrSort(ShareBean sb,TradeWatcher stockWatchData){
 	
 	double dh = 0;
 	double dl = 0;
@@ -302,11 +304,32 @@ public static String decideLongFirstOrSort(ShareBean sb){
 	dl = MethodUtil.roundOff(sb.getDayLow());
 	pc = MethodUtil.roundOff(sb.getPreviousClose());
 	
-	if((dh<pc)||(cp<pc)){
-		return ShareUtil.LONG;
-	}else{
-		return ShareUtil.SORT;
+	boolean isBuyAlerted=false;
+	boolean isSellAlerted=false;
+	
+	if (stockWatchData != null) {
+		isBuyAlerted = stockWatchData.isBuyAlerted();	
+		isSellAlerted = stockWatchData.isSellAlerted();
 	}
+	
+	if(!isBuyAlerted&&!isSellAlerted){
+		System.out.println("1-->isBuyAlerted = "+isBuyAlerted+" : isSellAlerted = "+isSellAlerted);
+		if((dh<pc)||(cp<pc)){
+			return ShareUtil.LONG;
+		}else{
+			return ShareUtil.SORT;
+		}
+	}else if(isBuyAlerted&&!isSellAlerted){
+		System.out.println("2-->isBuyAlerted = "+isBuyAlerted+" : isSellAlerted = "+isSellAlerted);
+		return ShareUtil.LONG;
+	}else if(!isBuyAlerted&&isSellAlerted){
+		System.out.println("3-->isBuyAlerted = "+isBuyAlerted+" : isSellAlerted = "+isSellAlerted);
+		return ShareUtil.SORT;
+	}else{ 
+		System.out.println("4-->isBuyAlerted = "+isBuyAlerted+" : isSellAlerted = "+isSellAlerted);
+		return ""; }
+	
+	
 	
 		
 }

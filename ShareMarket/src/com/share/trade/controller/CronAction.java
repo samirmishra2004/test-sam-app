@@ -15,6 +15,7 @@ import com.share.trade.bd.FutureGapTradeBD;
 import com.share.trade.bd.ScriptMapperBD;
 import com.share.trade.bd.ShareHomeBD;
 import com.share.trade.bd.StrategyBD;
+import com.share.trade.bd.TradeWatcherBD;
 import com.share.trade.common.MethodUtil;
 import com.share.trade.common.ShareUtil;
 import com.share.trade.common.TradeLong;
@@ -22,6 +23,7 @@ import com.share.trade.common.TradeSort;
 import com.share.trade.database.FutureGapScript;
 import com.share.trade.database.ScriptMapper;
 import com.share.trade.database.Strategy;
+import com.share.trade.database.TradeWatcher;
 import com.share.trade.vo.ShareBean;
 
 
@@ -47,6 +49,8 @@ public class CronAction{
 	private StrategyBD  strategyBD=new StrategyBD();
 	private ScriptMapperBD mapperBD=new ScriptMapperBD();
 	private FutureGapTradeBD futureGapTradeBD=new FutureGapTradeBD();
+	TradeWatcherBD watcherBD = new TradeWatcherBD();
+	
 	@RequestMapping("/cronAction")
 	public ModelAndView execute() throws Exception{
 		time.setTimeZone(TimeZone.getTimeZone("IST"));
@@ -95,25 +99,49 @@ public class CronAction{
 			for(String b:ShareUtil.WATCHER_SCRIPT_SET){
 				boolean updateWatcherPrice=true;
 				ShareBean shareBean=homeBD.getRealTimeFinanceData(b,0);
+				TradeWatcher stockWatchData = watcherBD.getWatchDataForScript(b);
+				
+				
 				ScriptMapper sm=mapperBD.getMappedScriptByScriptName(b);
 				System.out.println("broker script : "+sm.getBroker_script());
-				String longFirstOrShort=MethodUtil.decideLongFirstOrSort(shareBean);
+				String longFirstOrShort=MethodUtil.decideLongFirstOrSort(shareBean,stockWatchData);
 				
-				if(ShareUtil.LONG.equals(longFirstOrShort)){
+				if(ShareUtil.BULISH.equals(strategy.getGlobalSentiment())){
+					
+					System.out.println("=========Long trade =======");
+					watchLong.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+					
+				}else if(ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
+					
+					System.out.println("=========Sorting =======");
+					watchSort.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+					
+				}else {
+					if(ShareUtil.LONG.equals(longFirstOrShort)){
+						System.out.println("=========first Long trade =======");
+						watchLong.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+					}else{
+						System.out.println("========= default trade Sorting =======");
+						watchSort.watch(shareBean, b,strategy,sm,updateWatcherPrice);
+						
+					}
+				}
+				
+				/*if(ShareUtil.LONG.equals(longFirstOrShort)){
 					System.out.println("*****LONG FIRST****");
-					/*if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())&&
+					if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())&&
 							!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
 						updateWatcherPrice=false;
-					}*//*Not required, as it is going to run for either LONG or SORT not for both*/
+					}Not required, as it is going to run for either LONG or SORT not for both
 					if(!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
 						System.out.println("=========Long trade =======");
 						watchLong.watch(shareBean, b,strategy,sm,updateWatcherPrice);
 					}
-					/*if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())){
+					if(!ShareUtil.BULISH.equals(strategy.getGlobalSentiment())){
 						System.out.println("=========Sorting =======");
 						watchSort.watch(shareBean, b,strategy,sm,updateWatcherPrice);
 						updateWatcherPrice=true;//update at last
-					}*/ 
+					} 
 					
 				}else{				
 					
@@ -122,12 +150,12 @@ public class CronAction{
 						watchSort.watch(shareBean, b,strategy,sm,updateWatcherPrice);
 						updateWatcherPrice=true;//update at last
 					}
-					/*if(!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
+					if(!ShareUtil.BEARISH.equals(strategy.getGlobalSentiment())){
 						System.out.println("=========Long trade =======");
 						watchLong.watch(shareBean, b,strategy,sm,updateWatcherPrice);
-					}*/
+					}
 				
-				}
+				}*/
 			}
 		}
 		}catch (Exception e) {

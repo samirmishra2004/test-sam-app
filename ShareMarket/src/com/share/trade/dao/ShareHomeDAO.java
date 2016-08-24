@@ -18,6 +18,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
+import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,6 +28,16 @@ import org.mortbay.log.Log;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.urlfetch.FetchOptions;
+import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.share.trade.common.MethodUtil;
 import com.share.trade.common.PMF;
 import com.share.trade.common.ShareUtil;
@@ -123,8 +134,8 @@ public class ShareHomeDAO {
 	public ShareBean getRealTimeFinanceData(String symbol,long time) throws Exception{
 		ShareBean bean=null;
 		 System.out.println("in dao in getRealTimeFinanceData");
-		bean=getRealTimeQuoteFromMoneyControll(symbol);
-		
+		//bean=getRealTimeQuoteFromMoneyControll(symbol);
+		bean=getRealTimeQuoteFromNSE(symbol);
 		return bean;
 	}
 	/**This is synched so we only do one request at a time
@@ -254,6 +265,170 @@ public class ShareHomeDAO {
     	}
     	return stockInfo;
     }
+    public synchronized ShareBean getRealTimeQuoteFromNSE(String scriptId) throws Exception{
+    	ShareBean stockInfo = new ShareBean();
+    	
+    	String url="https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?symbol="+scriptId+"&illiquid=0&smeFlag=0&itpFlag=0";
+    	//url="https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?symbol="+"ZEEL"+"&illiquid=0&smeFlag=0&itpFlag=0";
+    	//url="https://www.nseindia.com/";
+    	Document doc; 
+    	try {
+    	/*Response	respJsp = Jsoup.connect(url).
+    				referrer("https://www.nseindia.com").
+    				userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36").timeout(60*1000)
+    				.execute();*/
+    	
+    	doc=Jsoup.connect(url)
+        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36")
+        .header("Accept-Language", "en-US,en")
+        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+        .header("Host", "www.nseindia.com")
+        .header("Connection", "keep-alive")
+        .header("Cache-Control", "max-age=0")
+        .header("Upgrade-Insecure-Requests", "1")
+        .header("Accept-Encoding", "gzip,deflate,sdch,br")
+        .timeout(60*1000)
+        .get();
+    		
+    		//HTTPResponse res=getResponse(url, "", "", HTTPMethod.GET,null);
+    	//doc= Jsoup.parse(new String(res.getContent()));
+    	
+    	//doc= respJsp.parse();
+    	//doc=Jsoup.parse(new URL(url), 6000);
+    	
+    	Float currPrice;
+    	Float dayHigh;
+    	Float previosClose;
+    	Float bidPrice;
+    	Float askPrice;
+    	Float dayLow;
+    	
+    	
+    	if(doc!=null){
+    		
+    		
+    		//while(iterator.hasNext()){}
+
+    		//System.out.println(doc.html());
+    		
+    		Elements jsonstr=doc.select("div[id^=responseDiv]");
+    		
+    		JsonParser jp=new JsonParser();
+    		JsonObject je= (JsonObject)jp.parse(jsonstr.text());
+    		JsonArray dataStringJsnArry =(JsonArray)je.get("data");
+    		System.out.println("dataString "+dataStringJsnArry);
+    		
+    		JsonObject scripPriceDataJson= (JsonObject)dataStringJsnArry.get(0);
+    		
+    		System.out.println("Current PRice "+scripPriceDataJson.get("lastPrice"));
+    		System.out.println("previousClose "+scripPriceDataJson.get("previousClose"));
+    		System.out.println("OpenPrice "+scripPriceDataJson.get("previousClose"));
+    		System.out.println("DayHigh "+scripPriceDataJson.get("dayHigh"));
+    		System.out.println("DayLow "+scripPriceDataJson.get("dayLow"));
+    		System.out.println("BidPrice "+scripPriceDataJson.get("buyPrice1"));
+    		System.out.println("AskPrice "+scripPriceDataJson.get("sellPrice1"));
+    			
+    		try{
+    			String p=scripPriceDataJson.get("lastPrice").getAsString().replaceAll(",", "");
+        		currPrice=Float.parseFloat(p);
+            	}catch(NumberFormatException ne){
+            		System.err.println(ne);
+            		currPrice=0.0f;
+            }
+    		try{
+    			String p=scripPriceDataJson.get("sellPrice1").getAsString().replaceAll(",", "");
+    			askPrice=Float.parseFloat(p);
+            	}catch(NumberFormatException ne){
+            		System.err.println(ne);
+            		askPrice=0.0f;
+            }
+    		try{
+    			String p=scripPriceDataJson.get("buyPrice1").getAsString().replaceAll(",", "");
+    			bidPrice=Float.parseFloat(p);
+            	}catch(NumberFormatException ne){
+            		System.err.println(ne);
+            		bidPrice=0.0f;
+            }
+    		try{
+    			String p=scripPriceDataJson.get("dayLow").getAsString().replaceAll(",", "");
+    			dayLow=Float.parseFloat(p);
+            	}catch(NumberFormatException ne){
+            		System.err.println(ne);
+            		dayLow=0.0f;
+            }
+    		try{
+    			String p=scripPriceDataJson.get("dayHigh").getAsString().replaceAll(",", "");
+    			dayHigh=Float.parseFloat(p);
+            	}catch(NumberFormatException ne){
+            		System.err.println(ne);
+            		dayHigh=0.0f;
+            }
+    		try{
+    			String p=scripPriceDataJson.get("previousClose").getAsString().replaceAll(",", "");
+    			previosClose=Float.parseFloat(p);
+            	}catch(NumberFormatException ne){
+            		System.err.println(ne);
+            		previosClose=0.0f;
+            }
+    			
+    			stockInfo.setCurrentTradePrice(currPrice);
+                stockInfo.setCurrentAsk(askPrice);
+                stockInfo.setCurrentBid(bidPrice);
+                stockInfo.setDayLow(dayLow);
+                stockInfo.setDayHigh(dayHigh);
+                stockInfo.setPreviousClose(previosClose);
+    	
+    		
+    	}
+    	}catch(Exception ex){
+    		System.err.println("Error in quote service "+ex.getMessage()+ex);
+    		throw new Exception("can not fetch quote"+ex);
+    	}
+    	return stockInfo;
+    }
+    private static HTTPResponse getResponse(String url,String payload, String cookieStr,HTTPMethod httpMethod, HTTPResponse prevoiusResponse) throws IOException {
+  	  URLFetchService service=URLFetchServiceFactory.getURLFetchService();
+  	  URL uri=new URL(url);
+  	  HTTPRequest request=new HTTPRequest(uri,httpMethod,FetchOptions.Builder.doNotFollowRedirects().setDeadline(60.0));
+  	  
+  	  if(prevoiusResponse!=null){
+  	  for(HTTPHeader h:prevoiusResponse.getHeaders()){
+  		  
+  		  if(!h.getName().equalsIgnoreCase("Set-Cookie")){
+  			 // request.addHeader(h);
+  		  }
+  		  
+  	  }
+  	  }
+  	  //if(HTTPMethod.POST.equals(httpMethod)){
+  	  //HTTPHeader header=new HTTPHeader("Content-Type","application/x-www-form-urlencoded");
+  	  //request.setHeader(header);
+  	  //}
+  	 // header=new HTTPHeader("User-Agent","Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.111 Safari/537.36");
+  	//  request.setHeader(header);
+  	  
+  	  if(cookieStr!=null && !"".equals(cookieStr)){
+  		  System.out.println("adding cookie to request : "+cookieStr);
+  	  request.addHeader(new HTTPHeader("Cookie",cookieStr));
+  	  }
+  	 // String payload="grant_type=assertion&assertion_type=";
+  	 // payload+="SignedJsonAssertionToken.GRANT_TYPE_VALUE";
+  	 // payload+="&assertion=";
+  	 // payload+=url;
+  	  if(payload!=null && !"".equals(payload)){
+  		  request.setPayload(payload.getBytes());
+  	  }
+  	  
+  	  HTTPResponse response=service.fetch(request);
+  	  //JsonParser parser=new JsonParser();
+  	  //String token=parser.parse(new String(response.getContent())));//.getAsJsonObject().get("access_token").getAsString();
+  	  String token=(new String(response.getContent()));
+  	  
+  	  System.out.println("=== *Response Payload Start*-1 ====");
+  	  System.out.println(token.substring(0, token.length()>100?100:token.length()));
+  	  System.out.println("=== Response Payload End====");
+  	  return response;
+  	}
     public synchronized FutureScriptQuote getRealTimeFutureQuote(String  scUrl) throws Exception{
 		
 		String url=ShareUtil.MONEY_CONTROL_FNO_URL+scUrl;
@@ -372,13 +547,63 @@ public class ShareHomeDAO {
 		return quote;
 		
 	}
-    public static void main(String[] args) {
+    public static void main(String[] args) {/*
 	//	ShareHomeDAO homeDAO=new ShareHomeDAO();
 	//	homeDAO.getRealTimeFutureQuote("sail/SAI/2013-08-29");
+    	String url="https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?symbol="+"HDFCBANK"+"&illiquid=0&smeFlag=0&itpFlag=0";
+    	//String jstr="{\"futLink\":\"\\/live_market\\/dynaContent\\/live_watch\\/get_quote\\/GetQuoteFO.jsp?underlying=ZEEL&instrument=FUTSTK&expiry=25AUG2016&type=-&strike=-\",\"otherSeries\":[\"EQ\",\"P2\"],\"lastUpdateTime\":\"11-AUG-2016 16:00:04\",\"tradedDate\":\"11AUG2016\",\"data\":[{\"extremeLossMargin\":\"5.00\",\"cm_ffm\":\"27,454.91\",\"bcStartDate\":\"-\",\"change\":\"-13.55\",\"buyQuantity3\":\"-\",\"sellPrice1\":\"-\",\"buyQuantity4\":\"-\",\"sellPrice2\":\"-\",\"priceBand\":\"No Band\",\"buyQuantity1\":\"32\",\"deliveryQuantity\":\"9,34,741\",\"buyQuantity2\":\"-\",\"sellPrice5\":\"-\",\"quantityTraded\":\"15,54,397\",\"buyQuantity5\":\"-\",\"sellPrice3\":\"-\",\"sellPrice4\":\"-\",\"open\":\"515.00\",\"low52\":\"346.70\",\"securityVar\":\"6.00\",\"marketType\":\"N\",\"pricebandupper\":\"566.50\",\"totalTradedValue\":\"7,808.82\",\"faceValue\":\"1.00\",\"ndStartDate\":\"-\",\"previousClose\":\"515.00\",\"symbol\":\"ZEEL\",\"varMargin\":\"7.50\",\"lastPrice\":\"501.45\",\"pChange\":\"-2.63\",\"adhocMargin\":\"-\",\"companyName\":\"Zee Entertainment Enterprises Limited\",\"averagePrice\":\"502.37\",\"secDate\":\"11AUG2016\",\"series\":\"EQ\",\"isinCode\":\"INE256A01028\",\"indexVar\":\"-\",\"pricebandlower\":\"463.50\",\"totalBuyQuantity\":\"32\",\"high52\":\"517.80\",\"purpose\":\"ANNUAL GENERAL MEETING\\/ DIVIDEND -RS 2.25\\/- PER SHARE\",\"cm_adj_low_dt\":\"24-AUG-15\",\"closePrice\":\"501.50\",\"isExDateFlag\":false,\"recordDate\":\"22-JUL-16\",\"cm_adj_high_dt\":\"10-AUG-16\",\"totalSellQuantity\":\"-\",\"dayHigh\":\"515.65\",\"exDate\":\"21-JUL-16\",\"sellQuantity5\":\"-\",\"bcEndDate\":\"-\",\"css_status_desc\":\"Listed\",\"ndEndDate\":\"-\",\"sellQuantity2\":\"-\",\"sellQuantity1\":\"-\",\"buyPrice1\":\"501.50\",\"sellQuantity4\":\"-\",\"buyPrice2\":\"-\",\"sellQuantity3\":\"-\",\"applicableMargin\":\"12.50\",\"buyPrice4\":\"-\",\"buyPrice3\":\"-\",\"buyPrice5\":\"-\",\"dayLow\":\"497.15\",\"deliveryToTradedQuantity\":\"60.14\",\"totalTradedVolume\":\"15,54,397\"}],\"optLink\":\"\\/marketinfo\\/sym_map\\/symbolMapping.jsp?symbol=ZEEL&instrument=-&date=-&segmentLink=17&symbolCount=2\"}";
     	
-    	/*try{
-    		Document doc=Jsoup.parse(new File("C:\\Users\\w7\\Desktop\\schoolmanagement\\srkOrder.html"), "UTF-8");
-    		//System.out.println(doc.html());
+    	try{
+    		//Document doc=Jsoup.parse(new File("C:\\Users\\HP pc\\Desktop\\NSEZeelQuote.html"), "UTF-8");
+    		
+    		Document doc=Jsoup.parse(new URL(url),60000);
+    		System.out.println(doc.html());
+    		
+    		Elements jsonstr=doc.select("div[id^=responseDiv]");
+    		
+    		JsonParser jp=new JsonParser();
+    		JsonObject je= (JsonObject)jp.parse(jsonstr.text());
+    		JsonArray dataStringJsnArry =(JsonArray)je.get("data");
+    		//System.out.println("dataString "+dataString);
+    		
+    		JsonObject scripPriceDataJson= (JsonObject)dataStringJsnArry.get(0);
+    		
+    		System.out.println("Current PRice "+scripPriceDataJson.get("lastPrice"));
+    		System.out.println("previousClose "+scripPriceDataJson.get("previousClose"));
+    		System.out.println("OpenPrice "+scripPriceDataJson.get("open"));
+    		System.out.println("DayHigh "+scripPriceDataJson.get("dayHigh"));
+    		System.out.println("DayLow "+scripPriceDataJson.get("dayLow"));
+    		System.out.println("BidPrice "+scripPriceDataJson.get("buyPrice1"));
+    		System.out.println("AskPrice "+scripPriceDataJson.get("sellPrice1"));
+    		
+    		Float currPrice;
+        	Float dayHigh;
+        	Float previosClose;
+        	Float bidPrice;
+        	Float askPrice;
+        	Float dayLow;
+    		
+        	try{
+    		currPrice=scripPriceDataJson.get("lastPrice").getAsFloat();
+        	}catch(NumberFormatException ne){
+        		System.err.println(ne);
+        		currPrice=0.0f;
+        	}
+    		
+    		askPrice=Float.parseFloat(scripPriceDataJson.get("sellPrice1").getAsString().replaceAll(",", ""));
+    		//bidPrice=scripPriceDataJson.get("buyPrice1").getAsFloat();
+    		//dayLow=scripPriceDataJson.get("dayLow").getAsFloat();
+    		//dayHigh=scripPriceDataJson.get("dayHigh").getAsFloat();
+    		
+    		
+    		System.out.println("Current PRice "+currPrice);
+    		//System.out.println("previousClose "+scripPriceDataJson.get("previousClose").getAsFloat());
+    		//System.out.println("OpenPrice "+scripPriceDataJson.get("previousClose"));
+    		//System.out.println("DayHigh "+dayHigh);
+    		//System.out.println("DayLow "+dayLow);
+    		//System.out.println("BidPrice "+bidPrice);
+    		System.out.println("AskPrice "+askPrice);
+    		
     		
     		Elements elements=doc.select("table[class^=rpm mkt]");
     		String quote="sail".toUpperCase();
@@ -415,6 +640,6 @@ public class ShareHomeDAO {
     	}catch (Exception e) {
 			// TODO: handle exception
     		e.printStackTrace();
-		}*/
-	}
+		}
+	*/}
 }
